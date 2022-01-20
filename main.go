@@ -6,18 +6,13 @@ import (
 	"text/template"
 )
 
-type html struct {
-	Name string
-	Age  int
-}
-
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		t, error := template.ParseFiles("./public/html/index.html")
 		if error != nil {
 			fmt.Println(error)
 		}
-		error = t.Execute(w, html{"Ewan", 17})
+		error = t.Execute(w, nil)
 		if error != nil {
 			fmt.Println(error)
 		}
