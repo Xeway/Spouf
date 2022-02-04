@@ -11,25 +11,35 @@ export default {
   },
   methods: {
   },
-  beforeCreate: function() {
-    document.body.classList.add("home");
+  beforeCreate() {
+    document.body.className = "home";
   },
   name: 'Home'
 }
+
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 
 .home {
-  background-color: $blue;
+  background-color: $dark_blue;
 }
+</style>
+
+<style lang="scss" scoped>
 
 h1 {
   font-family: 'Anton', sans-serif;
   font-size: 8rem;
+  color: $red;
+  text-shadow:
+  0 15*1px 0 $yellow,
+  0 15*2px 0 $bright_blue
+  ;
 }
 
 h3 {
   font-size: 2em;
+  color: $yellow;
 }
 </style>
