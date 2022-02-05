@@ -1,6 +1,17 @@
 <template>
+    <Nav/>
     <router-view/>
 </template>
+
+<script>
+import Nav from "@/components/Nav.vue";
+
+export default {
+    components: {
+        Nav
+    }
+}
+</script>
 
 <style lang="scss">
 @import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
@@ -17,7 +28,7 @@
     font-family: 'ranybold';
     src: url('../public/fonts/Rany/rany-bold-webfont.woff2') format('woff2'),
          url('../public/fonts/Rany/rany-bold-webfont.woff') format('woff');
-    font-weight: normal;
+    font-weight: bold;
     font-style: normal;
 
 }
@@ -25,7 +36,7 @@
     font-family: 'ranylight';
     src: url('../public/fonts/Rany/rany-light-webfont.woff2') format('woff2'),
          url('../public/fonts/Rany/rany-light-webfont.woff') format('woff');
-    font-weight: normal;
+    font-weight: 300;
     font-style: normal;
 
 }
@@ -33,7 +44,7 @@
     font-family: 'ranymedium';
     src: url('../public/fonts/Rany/rany-medium-webfont.woff2') format('woff2'),
          url('../public/fonts/Rany/rany-medium-webfont.woff') format('woff');
-    font-weight: normal;
+    font-weight: 500;
     font-style: normal;
 
 }

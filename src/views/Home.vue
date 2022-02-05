@@ -36,10 +36,44 @@ h1 {
   0 15*1px 0 $yellow,
   0 15*2px 0 $bright_blue
   ;
+  animation: shadowMove 1.3s infinite;
 }
 
 h3 {
   font-size: 2em;
   color: $yellow;
+  // animation: move 1.3s infinite;
+}
+
+/*
+@keyframes move {
+  50% {
+    transform: translateY(5px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+*/
+
+@keyframes shadowMove {
+  25% {
+    text-shadow:
+    0 15*2px 0 $yellow,
+    0 15*3px 0 $bright_blue
+    ;
+  }
+  50% {
+    text-shadow:
+    0 15*2px 0 $yellow,
+    0 15*4px 0 $bright_blue
+    ;
+  }
+  100% {
+    text-shadow:
+    0 15*1px 0 $yellow,
+    0 15*2px 0 $bright_blue
+    ;
+  }
 }
 </style>

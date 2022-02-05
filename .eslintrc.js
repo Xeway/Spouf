@@ -19,6 +19,7 @@ module.exports = {
       asyncArrow: 'never'
     }],
     "semi": 0,
-    "quotes": 0
+    "quotes": 0,
+    "indent": 0
   }
 }
