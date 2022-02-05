@@ -29,7 +29,7 @@ export default {
 <style lang="scss" scoped>
 
 h1 {
-  font-family: 'Anton', sans-serif;
+  font-family: 'ThunderBlack', sans-serif;
   font-size: 8rem;
   color: $red;
   text-shadow:

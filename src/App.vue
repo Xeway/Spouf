@@ -39,12 +39,12 @@
 }
 
 @font-face {
-    font-family: 'Thunder';
-    src: url('../public/fonts/THUNDER/Thunder-BoldLC.woff') format('woff'), /* Modern Browsers */
-         url('../public/fonts/THUNDER/Thunder-BoldLC.woff2') format('woff2'), /* Modern Browsers */
-         url('../public/fonts/THUNDER/Thunder-BoldLC.ttf') format('truetype'); /* Safari, Android, iOS */
+    font-family: 'ThunderBlack';
+    src: url('../public/fonts/THUNDER/Thunder-BlackLC.woff') format('woff'), /* Modern Browsers */
+         url('../public/fonts/THUNDER/Thunder-BlackLC.woff2') format('woff2'), /* Modern Browsers */
+         url('../public/fonts/THUNDER/Thunder-BlackLC.ttf') format('truetype'); /* Safari, Android, iOS */
              font-style: normal;
-    font-weight: bold;
+    font-weight: 900;
     text-rendering: optimizeLegibility;
 }
 
