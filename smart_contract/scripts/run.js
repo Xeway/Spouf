@@ -14,12 +14,12 @@ async function main() {
   // await hre.run('compile');
 
   // We get the contract to deploy
-  const Greeter = await hre.ethers.getContractFactory("Greeter");
-  const greeter = await Greeter.deploy("Hello, Hardhat!");
+  const spoufContractFactory = await hre.ethers.getContractFactory("Spouf");
+  const spoufContract = await spoufContractFactory.deploy(); // You can pass arguments in the `deploy` method, it will be passed in the constructor of the contract
 
-  await greeter.deployed();
+  await spoufContract.deployed();
 
-  console.log("Greeter deployed to:", greeter.address);
+  console.log("Contract's adress:", spoufContract.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
