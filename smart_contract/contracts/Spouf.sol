@@ -19,7 +19,7 @@ contract Spouf {
         balances[msg.sender] += msg.value;
     }
 
-    function withdrawMoney(uint _amount) external  {
+    function withdrawMoney(uint _amount) external {
         require(
             _amount <= address(this).balance,
             "Trying to withdraw more money than the contract has."
