@@ -59,6 +59,14 @@ export default {
     text-rendering: optimizeLegibility;
 }
 
+.darkblue-bg {
+  background-color: $dark_blue;
+}
+
+.yellow-bg {
+    background-color: $yellow;
+}
+
 #app {
   font-family: 'ranyregular', sans-serif;
   -webkit-font-smoothing: antialiased;

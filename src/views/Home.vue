@@ -7,24 +7,13 @@
 // @ is an alias to /src
 
 export default {
-  data() {
-  },
-  methods: {
-  },
   beforeCreate() {
-    document.body.className = "home";
+    document.body.className = "darkblue-bg";
   },
   name: 'Home'
 }
 
 </script>
-
-<style lang="scss">
-
-.home {
-  background-color: $dark_blue;
-}
-</style>
 
 <style lang="scss" scoped>
 

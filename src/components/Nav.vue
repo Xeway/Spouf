@@ -5,11 +5,9 @@
             <router-link to="/">Home</router-link>
             <router-link to="/about">About</router-link>
             <router-link to="/working">How it works</router-link>
-            <router-link to="/Contact">Contact</router-link>
+            <router-link to="/contact">Contact</router-link>
         </div>
-        <div class="app-button">
-            <router-link to="/app">App</router-link>
-        </div>
+        <router-link to="/app" class="app-button">App</router-link>
     </nav>
 </template>
 
