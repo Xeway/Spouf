@@ -5,10 +5,15 @@ import "hardhat/console.sol";
 
 contract Spouf {
 
+    uint globalBalance;
     mapping(address => uint) balances;
 
     constructor() {
         console.log("Smart contract deployed.");
+    }
+
+    function showGlobalBalance() external view returns (uint) {
+        return globalBalance;
     }
 
     function sendMoney() external payable {
@@ -17,6 +22,7 @@ contract Spouf {
             "The user sent an incorrect amount of money."
         );
         balances[msg.sender] += msg.value;
+        globalBalance += msg.value;
     }
 
     function withdrawMoney(uint _amount) external {
@@ -32,6 +38,7 @@ contract Spouf {
         require(success, "Failed to withdraw money from contract.");
 
         balances[msg.sender] -= _amount;
+        globalBalance -= _amount;
     }
 
     function showBalance() external view returns (uint) {

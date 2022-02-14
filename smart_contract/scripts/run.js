@@ -28,6 +28,7 @@ async function main() {
   let sendMoney;
   let withdrawMoney;
   let showBalance;
+  let showGlobalBalance;
   let randomPersonBalance;
 
   sendMoney = await spoufContract.sendMoney({
@@ -59,9 +60,12 @@ async function main() {
 
   showBalance = await spoufContract.connect(randomPerson).showBalance();
   console.log("randomPerson's (in contract) balance :", hre.ethers.utils.formatEther(showBalance) + " Ξ");
-  
+
   randomPersonBalance = await hre.ethers.provider.getBalance(randomPerson.address);
   console.log("randomPerson's (own account) balance :", hre.ethers.utils.formatEther(randomPersonBalance) + " Ξ");
+
+  showGlobalBalance = await spoufContract.showGlobalBalance();
+  console.log("Global balance :", hre.ethers.utils.formatEther(showGlobalBalance) + " Ξ");
 }
 
 // We recommend this pattern to be able to use async/await everywhere
