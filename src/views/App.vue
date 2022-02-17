@@ -77,7 +77,7 @@ export default {
 
         await this.subscribeProvider(instance);
 
-        this.spoufContract = spoufContract;
+        this.contract = spoufContract;
 
         // if you want to have access to const instance, you can do provider.provider
       }
