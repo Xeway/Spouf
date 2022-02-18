@@ -6,7 +6,16 @@
     <p>Connected with your wallet : {{ account }}</p>
     <p>Network : {{ network }}</p>
     <button @click="disconnect">Disconnect</button>
-    <div class="userBalance"></div>
+    <div class="userBalance">{{ balance }}</div>
+    <form class="sendMoney" @submit.prevent="sendMoney($event)">
+      <input type="number" name="amount" placeholder="0.0" min="0.0" step="0.001" required>
+      <input type="submit" value="Send ethers">
+    </form>
+    <form class="withdrawMoney" @submit.prevent="withdrawMoney($event)">
+      <input @input="$event.target.value > balance ? overWithdraw = true : overWithdraw = false" type="number" name="amount" placeholder="0.0" min="0.0" step="0.001" required>
+      <p v-if="overWithdraw">You withdraw more ethers than you have</p>
+      <input type="submit" value="Withdraw ethers" :disabled="overWithdraw">
+    </form>
   </div>
   <div v-else-if="account && !network">Invalid network</div>
 </template>
@@ -61,7 +70,9 @@ export default {
         providerOptions
       }),
       instance: null,
-      contract: null
+      contract: null,
+      balance: 0,
+      overWithdraw: false
     }
   },
   methods: {
@@ -79,12 +90,18 @@ export default {
 
         this.contract = spoufContract;
 
+        this.showBalance();
+
         // if you want to have access to const instance, you can do provider.provider
       }
     },
     connectContract: async function() {
       const instance = await this.web3Modal.connect(); // const instance is like the "window.ethereum" for MetaMask
 
+      const { provider, spoufContract } = await this.getContract(instance);
+      return { instance, provider, spoufContract };
+    },
+    getContract: async function(instance) {
       const provider = new ethers.providers.Web3Provider(instance);
 
       const signer = provider.getSigner();
@@ -92,7 +109,7 @@ export default {
 
       this.instance = instance;
 
-      return { instance, provider, spoufContract };
+      return { instance, provider, signer, spoufContract };
     },
     subscribeProvider: async function(provider) {
       if (provider.isFortmatic) return;
@@ -103,6 +120,7 @@ export default {
           return;
         }
         this.account = accounts[0];
+        this.showBalance();
       });
 
       provider.on("chainChanged", (chainId) => {
@@ -119,10 +137,12 @@ export default {
           default:
             this.network = false;
         }
+        this.showBalance();
       });
 
       provider.on("connect", (info) => {
         console.log(info);
+        this.showBalance();
       });
 
       // This event is not triggered when disconnected, see : https://github.com/MetaMask/metamask-extension/issues/10125
@@ -136,6 +156,23 @@ export default {
       if (this.instance.isFortmatic) await this.instance.fm.user.logout();
       this.account = null;
       this.network = null;
+    },
+    showBalance: async function() {
+      const balance = ethers.utils.formatEther(await this.contract.showBalance());
+      this.balance = balance;
+    },
+    sendMoney: async function(event) {
+      await this.contract.sendMoney({
+        value: ethers.utils.parseEther(event.target[0].value),
+        gasLimit: 300000
+      });
+
+      await this.showBalance();
+    },
+    withdrawMoney: async function(event) {
+      await this.contract.withdrawMoney(ethers.utils.parseEther(event.target[0].value));
+
+      await this.showBalance();
     }
   },
   beforeCreate() {
