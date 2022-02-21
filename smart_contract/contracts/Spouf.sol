@@ -8,6 +8,9 @@ contract Spouf {
     uint globalBalance;
     mapping(address => uint) balances;
 
+    event UpdateBalance(uint balance);
+    event UpdateGlobalBalance(uint globalBalance);
+
     constructor() {
         console.log("Smart contract deployed.");
     }
@@ -23,6 +26,9 @@ contract Spouf {
         );
         balances[msg.sender] += msg.value;
         globalBalance += msg.value;
+
+        emit UpdateBalance(balances[msg.sender]);
+        emit UpdateGlobalBalance(globalBalance);
     }
 
     function withdrawMoney(uint _amount) external {
@@ -39,6 +45,9 @@ contract Spouf {
 
         balances[msg.sender] -= _amount;
         globalBalance -= _amount;
+
+        emit UpdateBalance(balances[msg.sender]);
+        emit UpdateGlobalBalance(globalBalance);
     }
 
     function showBalance() external view returns (uint) {
