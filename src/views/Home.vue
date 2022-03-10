@@ -1,14 +1,61 @@
 <template>
   <h1>SPOUF</h1>
   <h3>A blockchain-based app that aims to stop procrastinating by loosing money 🤪💸</h3>
+  <p><span>{{ globalBalance }}</span> ethers deposited!</p>
 </template>
 
 <script>
 // @ is an alias to /src
 
+import {
+  ethers,
+
+  contractAddresses,
+  contractABI,
+
+  infuraId,
+  alchemyId
+} from "@/contracts.js";
+
 export default {
+  data() {
+    return {
+      globalBalance: 0
+    }
+  },
   beforeCreate() {
     document.body.className = "darkblue-bg";
+  },
+  async mounted() {
+    // for the Rinkeby network and the Mumbai network, in production this code will be deleted because we don't want fake ethers among global balance
+    const providerRinkeby = ethers.getDefaultProvider("rinkeby", {
+      infura: infuraId
+    });
+    const spoufContractRinkeby = new ethers.Contract(contractAddresses.rinkeby, contractABI, providerRinkeby);
+    const globalBalanceRinkeby = parseFloat(ethers.utils.formatEther(parseInt(await spoufContractRinkeby.showGlobalBalance()).toString()));
+
+    // Mumbai network is not supported by Infura (for the free plan), see : https://github.com/ethers-io/ethers.js/discussions/2008
+    const providerMumbai = new ethers.providers.AlchemyProvider("maticmum", alchemyId);
+    const spoufContractMumbai = new ethers.Contract(contractAddresses.mumbai, contractABI, providerMumbai);
+    const globalBalanceMumbai = parseFloat(ethers.utils.formatEther(parseInt(await spoufContractMumbai.showGlobalBalance()).toString()));
+    //
+
+    // since the contract's are not deployed yet on Matic and Ethereum, the following code will be present when the project will be fully finished
+    /* const providerMatic = new ethers.providers.AlchemyProvider("matic", {
+      infura: infuraId
+    });
+    const spoufContractMatic = new ethers.Contract(contractAddresses.matic, contractABI, providerMatic);
+    const globalBalanceMatic = parseFloat(ethers.utils.formatEther(parseInt(await spoufContractMatic.showGlobalBalance()).toString()));
+
+    const providerEthereum = ethers.getDefaultProvider("homestead", {
+      infura: infuraId
+    });
+    const spoufContractEthereum = new ethers.Contract(contractAddresses.ethereum, contractABI, providerEthereum);
+    const globalBalanceEthereum = parseFloat(ethers.utils.formatEther(parseInt(await spoufContractEthereum.showGlobalBalance()).toString())); */
+
+    const globalBalance = globalBalanceRinkeby + globalBalanceMumbai;
+
+    this.globalBalance = globalBalance;
   },
   name: 'Home'
 }

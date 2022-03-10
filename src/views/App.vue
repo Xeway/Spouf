@@ -19,10 +19,10 @@
       </form>
     </div>
     <select name="networks" @change="changeNetwork($event)" id="networks" v-if="isMetaMask">
-      <option value="Ethereum">Ethereum</option>
-      <option value="Matic">Matic</option>
-      <option value="Rinkeby">Rinkeby</option>
-      <option value="Mumbai">Mumbai</option>
+      <option value="Ethereum" :selected="network === 'Ethereum'">Ethereum</option>
+      <option value="Matic" :selected="network === 'Matic'">Matic</option>
+      <option value="Rinkeby" :selected="network === 'Rinkeby'">Rinkeby</option>
+      <option value="Mumbai" :selected="network === 'Mumbai'">Mumbai</option>
     </select>
   </div>
   <div v-if="account && !network">Invalid network</div>
@@ -30,22 +30,27 @@
 
 <script>
 
-import { ethers } from "ethers";
-import abi from "../../smart_contract/artifacts/contracts/Spouf.sol/Spouf.json";
+import {
+  ethers,
 
-import Web3Modal from "web3modal";
-import WalletConnectProvider from "@walletconnect/web3-provider";
-import Fortmatic from "fortmatic";
-import WalletLink from "walletlink";
+  Web3Modal,
+  WalletConnectProvider,
+  Fortmatic,
+  WalletLink,
 
-let contractAddress = "0x1cDA8369BF47F098536f976730f557f768b77e36";
-const contractABI = abi.abi;
+  contractAddress,
+  setContractAddress,
+  contractAddresses,
+  contractABI,
+
+  infuraId
+} from "@/contracts.js";
 
 const providerOptions = {
   walletconnect: {
     package: WalletConnectProvider,
     options: {
-      infuraId: "7f241e16d45245599aedb55e901250c2"
+      infuraId: infuraId
     }
   },
   fortmatic: {
@@ -58,7 +63,7 @@ const providerOptions = {
     package: WalletLink,
     options: {
       appName: "spouf",
-      infuraId: "7f241e16d45245599aedb55e901250c2",
+      infuraId: infuraId,
       chainId: 1,
       appLogoUrl: null,
       darkMode: true
@@ -94,11 +99,9 @@ export default {
         const accounts = await provider.listAccounts();
         this.account = accounts[0];
 
-        const { name, chainId } = await provider.getNetwork();
+        const { chainId } = await provider.getNetwork();
 
-        if (chainId === 1) this.network = "Ethereum";
-        if (chainId === 80001) this.network = "Mumbai";
-        if (chainId !== 1 && chainId !== 80001) this.network = name.charAt(0).toUpperCase() + name.substring(1);
+        await this.changeNetwork(chainId);
 
         await this.subscribeProvider();
 
@@ -222,26 +225,28 @@ export default {
         }
       }
 
-      // if the user change network direclty from his wallet app
+      // if the user change network directly from his wallet app
       if (!event.target) {
         switch (event) {
           case "0x1": case 1:
             this.network = "Ethereum";
+            setContractAddress(contractAddresses.ethereum);
             break;
           case "0x4": case 4:
             this.network = "Rinkeby";
-            contractAddress = "0x1cDA8369BF47F098536f976730f557f768b77e36";
+            setContractAddress(contractAddresses.rinkeby);
             break;
           case "0x89": case 89: case 137:
             this.network = "Matic";
+            setContractAddress(contractAddresses.matic);
             break;
           case "0x13881": case 80001:
             this.network = "Mumbai";
-            contractAddress = "0xB43a87daE649b947b1CAd104c126A1bfF3e432ea";
+            setContractAddress(contractAddresses.mumbai);
             break;
           default:
             this.network = false;
-            contractAddress = "0x";
+            setContractAddress("0x");
             return;
         }
       }

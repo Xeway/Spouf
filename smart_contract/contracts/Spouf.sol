@@ -21,7 +21,7 @@ contract Spouf {
 
     function sendMoney() external payable {
         require(
-            msg.value > 0 wei,
+            msg.value >= 1 gwei,
             "The user sent an incorrect amount of money."
         );
         balances[msg.sender] += msg.value;
