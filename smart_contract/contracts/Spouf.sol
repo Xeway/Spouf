@@ -15,11 +15,19 @@ contract Spouf {
         console.log("Smart contract deployed.");
     }
 
+    fallback() external payable {
+        sendMoney();
+    }
+
+    receive() external payable {
+        sendMoney();
+    }
+
     function showGlobalBalance() external view returns (uint) {
         return globalBalance;
     }
 
-    function sendMoney() external payable {
+    function sendMoney() public payable {
         require(
             msg.value >= 1 gwei,
             "The user sent an incorrect amount of money."
