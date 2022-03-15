@@ -34,10 +34,18 @@ export default {
     const spoufContractRinkeby = new ethers.Contract(contractAddresses.rinkeby, contractABI, providerRinkeby);
     const globalBalanceRinkeby = parseFloat(ethers.utils.formatEther(parseInt(await spoufContractRinkeby.showGlobalBalance()).toString()));
 
+    spoufContractRinkeby.on("UpdateGlobalBalance", (globalBalance) => {
+      this.globalBalance = this.globalBalance + (parseFloat(ethers.utils.formatEther(globalBalance)) - globalBalanceRinkeby);
+    });
+
     // Mumbai network is not supported by Infura (for the free plan), see : https://github.com/ethers-io/ethers.js/discussions/2008
     const providerMumbai = new ethers.providers.AlchemyProvider("maticmum", alchemyId);
     const spoufContractMumbai = new ethers.Contract(contractAddresses.mumbai, contractABI, providerMumbai);
     const globalBalanceMumbai = parseFloat(ethers.utils.formatEther(parseInt(await spoufContractMumbai.showGlobalBalance()).toString()));
+
+    spoufContractMumbai.on("UpdateGlobalBalance", (globalBalance) => {
+      this.globalBalance = this.globalBalance + (parseFloat(ethers.utils.formatEther(globalBalance)) - globalBalanceMumbai);
+    });
     //
 
     // since the contract's are not deployed yet on Matic and Ethereum, the following code will be present when the project will be fully finished
@@ -47,15 +55,22 @@ export default {
     const spoufContractMatic = new ethers.Contract(contractAddresses.matic, contractABI, providerMatic);
     const globalBalanceMatic = parseFloat(ethers.utils.formatEther(parseInt(await spoufContractMatic.showGlobalBalance()).toString()));
 
+    spoufContractMatic.on("UpdateGlobalBalance", (globalBalance) => {
+      this.globalBalance = this.globalBalance + (parseFloat(ethers.utils.formatEther(globalBalance)) - globalBalanceMatic);
+    });
+
     const providerEthereum = ethers.getDefaultProvider("homestead", {
       infura: infuraId
     });
     const spoufContractEthereum = new ethers.Contract(contractAddresses.ethereum, contractABI, providerEthereum);
-    const globalBalanceEthereum = parseFloat(ethers.utils.formatEther(parseInt(await spoufContractEthereum.showGlobalBalance()).toString())); */
+    const globalBalanceEthereum = parseFloat(ethers.utils.formatEther(parseInt(await spoufContractEthereum.showGlobalBalance()).toString()));
 
-    const globalBalance = globalBalanceRinkeby + globalBalanceMumbai;
+    spoufContractEthereum.on("UpdateGlobalBalance", (globalBalance) => {
+      this.globalBalance = this.globalBalance + (parseFloat(ethers.utils.formatEther(globalBalance)) - globalBalanceEthereum);
+    });
+    */
 
-    this.globalBalance = globalBalance;
+    this.globalBalance = globalBalanceRinkeby + globalBalanceMumbai;
   },
   name: 'Home'
 }
