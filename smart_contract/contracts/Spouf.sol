@@ -129,7 +129,7 @@ contract Spouf is KeeperCompatibleInterface {
     }
 
     // this function is used to check if a goal become out of date. We use ChainLink Keepers to execute that automatically.
-    function checkUpkeep(bytes calldata checkData) external view override returns (bool upkeepNeeded, bytes memory performData) {
+    function checkUpkeep(bytes calldata) external view override returns (bool upkeepNeeded, bytes memory performData) {
         // gas saving
         address[] memory m_usersCommitted = usersCommitted;
 
