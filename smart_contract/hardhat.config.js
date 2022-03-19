@@ -30,6 +30,10 @@ module.exports = {
       url: process.env.ALCHEMY_API_URL_RINKEBY,
       accounts: [process.env.PRIVATE_ACCOUNT_KEY]
     },
+    kovan: {
+      url: process.env.ALCHEMY_API_URL_KOVAN,
+      accounts: [process.env.PRIVATE_ACCOUNT_KEY]
+    },
     mumbai: {
       url: process.env.ALCHEMY_API_URL_MUMBAI,
       accounts: [process.env.PRIVATE_ACCOUNT_KEY]

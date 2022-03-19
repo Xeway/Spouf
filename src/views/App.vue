@@ -21,7 +21,7 @@
     <select name="networks" @change="changeNetwork($event)" id="networks" v-if="isMetaMask">
       <option value="Ethereum" :selected="network === 'Ethereum'">Ethereum</option>
       <option value="Matic" :selected="network === 'Matic'">Matic</option>
-      <option value="Rinkeby" :selected="network === 'Rinkeby'">Rinkeby</option>
+      <option value="Kovan" :selected="network === 'Kovan'">Kovan</option>
       <option value="Mumbai" :selected="network === 'Mumbai'">Mumbai</option>
     </select>
   </div>
@@ -175,8 +175,8 @@ export default {
         let rpcUrl;
 
         switch (event.target.value) {
-          case "Rinkeby":
-            chainId = "0x4";
+          case "Kovan":
+            chainId = "0x2a";
             chainName = event.target.value;
             rpcUrl = "";
             break;
@@ -202,7 +202,7 @@ export default {
             params: [{ chainId: chainId }]
           });
 
-          if (event.target.value === "Ethereum" || event.target.value === "Matic" || event.target.value === "Rinkeby" || event.target.value === "Mumbai") {
+          if (event.target.value === "Ethereum" || event.target.value === "Matic" || event.target.value === "Kovan" || event.target.value === "Mumbai") {
             this.network = event.target.value;
           }
         } catch (switchError) {
@@ -232,9 +232,9 @@ export default {
             this.network = "Ethereum";
             setContractAddress(contractAddresses.ethereum);
             break;
-          case "0x4": case 4:
-            this.network = "Rinkeby";
-            setContractAddress(contractAddresses.rinkeby);
+          case "0x42": case 42: case "0x2a":
+            this.network = "Kovan";
+            setContractAddress(contractAddresses.kovan);
             break;
           case "0x89": case 89: case 137:
             this.network = "Matic";

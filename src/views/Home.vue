@@ -27,15 +27,15 @@ export default {
     document.body.className = "darkblue-bg";
   },
   async mounted() {
-    // for the Rinkeby network and the Mumbai network, in production this code will be deleted because we don't want fake ethers among global balance
-    const providerRinkeby = ethers.getDefaultProvider("rinkeby", {
+    // for the Kovan network and the Mumbai network, in production this code will be deleted because we don't want fake ethers among global balance
+    const providerKovan = ethers.getDefaultProvider("kovan", {
       infura: infuraId
     });
-    const spoufContractRinkeby = new ethers.Contract(contractAddresses.rinkeby, contractABI, providerRinkeby);
-    const globalBalanceRinkeby = parseFloat(ethers.utils.formatEther(parseInt(await spoufContractRinkeby.showGlobalBalance()).toString()));
+    const spoufContractKovan = new ethers.Contract(contractAddresses.kovan, contractABI, providerKovan);
+    const globalBalanceKovan = parseFloat(ethers.utils.formatEther(parseInt(await spoufContractKovan.showGlobalBalance()).toString()));
 
-    spoufContractRinkeby.on("UpdateGlobalBalance", (globalBalance) => {
-      this.globalBalance = this.globalBalance + (parseFloat(ethers.utils.formatEther(globalBalance)) - globalBalanceRinkeby);
+    spoufContractKovan.on("UpdateGlobalBalance", (globalBalance) => {
+      this.globalBalance = this.globalBalance + (parseFloat(ethers.utils.formatEther(globalBalance)) - globalBalanceKovan);
     });
 
     // Mumbai network is not supported by Infura (for the free plan), see : https://github.com/ethers-io/ethers.js/discussions/2008
@@ -70,7 +70,7 @@ export default {
     });
     */
 
-    this.globalBalance = globalBalanceRinkeby + globalBalanceMumbai;
+    this.globalBalance = globalBalanceKovan + globalBalanceMumbai;
   },
   name: 'Home'
 }
