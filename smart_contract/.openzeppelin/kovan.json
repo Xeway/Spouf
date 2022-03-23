@@ -1,0 +1,110 @@
+{
+  "manifestVersion": "3.2",
+  "admin": {
+    "address": "0xF344A009404C8808f9A3f68b2135D8EbAD903696",
+    "txHash": "0xc1ad7e160501db8635d1025364e88bc0ad29bfeaa30a815c7b6e79732f0e3141"
+  },
+  "proxies": [
+    {
+      "address": "0xa4E8a7ddC2B719767F63F0f8BA27184d268129db",
+      "txHash": "0x2f058cd5dfe6064cf2b28120fdd82ba78b0085d2498172a7dfcf9f19ef4b56cc",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "3136b87d5df69d593f6931dffbf86fc53ad8c9f23cf0716cfcb4c0f9faa0f3bc": {
+      "address": "0xbc619B71DE24236B55A621b682A7cEef1bef20B1",
+      "txHash": "0x34be82aa434dd7f171cea1eee9561fe86efe89dbbf6947d5fd722db2a4afa912",
+      "layout": {
+        "storage": [
+          {
+            "label": "globalBalance",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256",
+            "contract": "Spouf",
+            "src": "contracts\\Spouf.sol:13"
+          },
+          {
+            "label": "balances",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "Spouf",
+            "src": "contracts\\Spouf.sol:14"
+          },
+          {
+            "label": "usersCommitted",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_array(t_address)dyn_storage",
+            "contract": "Spouf",
+            "src": "contracts\\Spouf.sol:25"
+          },
+          {
+            "label": "individualGoals",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_mapping(t_address,t_array(t_struct(Goal)400_storage)dyn_storage)",
+            "contract": "Spouf",
+            "src": "contracts\\Spouf.sol:26"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_struct(Goal)400_storage)dyn_storage": {
+            "label": "struct Spouf.Goal[]",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_array(t_struct(Goal)400_storage)dyn_storage)": {
+            "label": "mapping(address => struct Spouf.Goal[])",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Goal)400_storage": {
+            "label": "struct Spouf.Goal",
+            "members": [
+              {
+                "label": "goal",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "deadline",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          }
+        }
+      }
+    }
+  }
+}

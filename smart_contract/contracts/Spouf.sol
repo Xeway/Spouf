@@ -30,10 +30,6 @@ contract Spouf is KeeperCompatibleInterface {
         uint index;
     }
 
-    constructor() {
-        console.log("Smart contract deployed.");
-    }
-
     fallback() external payable {
         sendMoney();
     }

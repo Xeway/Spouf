@@ -1,4 +1,4 @@
-// deploy.js was to deploy a contract (outdated since we use a proxy contract)
+// upgrade.js is used to deploy a new version of a contract
 
 async function main() {
 
@@ -9,7 +9,8 @@ async function main() {
     console.log("Account balance: ", accountBalance.toString());
 
     const spoufContractFactory = await hre.ethers.getContractFactory("Spouf");
-    const spoufContract = await spoufContractFactory.deploy();
+    const spoufContract = await upgrades.upgradeProxy("0xa4E8a7ddC2B719767F63F0f8BA27184d268129db", spoufContractFactory);
+
     await spoufContract.deployed();
 
     console.log("Smart contract's address: ", spoufContract.address);
