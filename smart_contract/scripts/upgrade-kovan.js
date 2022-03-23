@@ -1,4 +1,4 @@
-// upgrade.js is used to deploy a new version of a contract
+// upgrade.js is used to deploy a new version of a contract on the Kovan network
 
 async function main() {
 
