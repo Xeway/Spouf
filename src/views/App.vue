@@ -7,16 +7,7 @@
       <p>Connected with your wallet : {{ account }}</p>
       <p>Network : {{ network }}</p>
       <button @click="disconnect">Disconnect</button>
-      <div class="userBalance">{{ balance }}</div>
-      <form class="sendMoney" @submit.prevent="sendMoney($event)">
-        <input type="number" name="amount" placeholder="0.0" min="0.0" step="0.000000001" required>
-        <input type="submit" value="Send ethers">
-      </form>
-      <form class="withdrawMoney" @submit.prevent="withdrawMoney($event)">
-        <input @input="$event.target.value > balance ? overWithdraw = true : overWithdraw = false" type="number" name="amount" placeholder="0.0" min="0.0" step="0.000000001" required>
-        <p v-if="overWithdraw">You withdraw more ethers than you have</p>
-        <input type="submit" value="Withdraw ethers" :disabled="overWithdraw">
-      </form>
+      <div class="goals"></div>
     </div>
     <select name="networks" @change="changeNetwork($event)" id="networks" v-if="isMetaMask">
       <option value="Ethereum" :selected="network === 'Ethereum'">Ethereum</option>
@@ -87,7 +78,6 @@ export default {
       account: null,
       network: null,
       balance: 0,
-      overWithdraw: false,
       isMetaMask: false
     }
   },
@@ -105,7 +95,7 @@ export default {
 
         await this.subscribeProvider();
 
-        await this.showBalance();
+        await this.showGoals();
 
         // if you want to have access to const instance, you can do provider.provider
       }
@@ -143,7 +133,7 @@ export default {
           return;
         }
         this.account = accounts[0];
-        this.showBalance();
+        this.showGoals();
       });
 
       ethereum.on("chainChanged", (chainId) => {
@@ -151,7 +141,7 @@ export default {
       });
 
       ethereum.on("connect", (info) => {
-        this.showBalance();
+        this.showGoals();
       });
 
       // This event is not triggered when disconnected, see : https://github.com/MetaMask/metamask-extension/issues/10125
@@ -165,7 +155,6 @@ export default {
       if (ethereum.isFortmatic) await ethereum.fm.user.logout();
       this.account = null;
       this.network = null;
-      this.overWithdraw = false;
       this.isMetaMask = false;
     },
     changeNetwork: async function(event) {
@@ -252,25 +241,16 @@ export default {
       }
 
       await this.getContract(ethereum);
-      await this.showBalance();
+      await this.showGoals();
     },
-    showBalance: async function() {
+    showGoals: async function() {
       await this.getContract(ethereum);
-      const balance = ethers.utils.formatEther(await contract.showBalance());
+      const balance = ethers.utils.formatEther(await contract.getGoal());
       this.balance = balance;
 
       contract.on("UpdateBalance", (updatedBalance) => {
         this.balance = ethers.utils.formatEther(updatedBalance);
       });
-    },
-    sendMoney: async function(event) {
-      await contract.sendMoney({
-        value: ethers.utils.parseEther(event.target[0].value),
-        gasLimit: 300000
-      });
-    },
-    withdrawMoney: async function(event) {
-      await contract.withdrawMoney(ethers.utils.parseEther(event.target[0].value));
     }
   },
   beforeCreate() {
