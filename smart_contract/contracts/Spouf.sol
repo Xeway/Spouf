@@ -11,10 +11,9 @@ contract Spouf is KeeperCompatibleInterface {
     using SafeMath for uint;
 
     uint globalBalance;
-    mapping(address => uint) balances;
 
-    event UpdateBalance(uint balance);
-    event UpdateGlobalBalance(uint globalBalance);
+    event UpdateGoals(Goal[]);
+    event UpdateGlobalBalance(uint _globalBalance);
 
     struct Goal {
         string goal;
@@ -31,54 +30,35 @@ contract Spouf is KeeperCompatibleInterface {
     }
 
     fallback() external payable {
-        sendMoney();
+        donate();
     }
 
     receive() external payable {
-        sendMoney();
+        donate();
+    }
+
+    function donate() public payable {
+        require(
+            msg.value >= 1 gwei,
+            "The user sent an incorrect amount of money."
+        );
+
+        // as explicity said, the money donated goes 10% for the Spouf team, and 90% for charities. Here we donate to GiveDirectly, see : https://donate.givedirectly.org/
+        // we can't use rational numbers like 0.1, so we dividide by 100 and then multiply by 10 to get 10%
+        (bool successTeam, ) = (0xE4E6dC19efd564587C46dCa2ED787e45De17E7E1).call{value: msg.value.div(100).mul(10)}("");
+        (bool successCharities, ) = (0x750EF1D7a0b4Ab1c97B7A623D7917CcEb5ea779C).call{value: msg.value.div(100).mul(90)}("");
+        require(successTeam && successCharities, "Failed to donate.");
     }
 
     function showGlobalBalance() external view returns (uint) {
         return globalBalance;
     }
 
-    function sendMoney() public payable {
+    function setGoal(string memory _goal, uint _duration) external payable {        
         require(
             msg.value >= 1 gwei,
             "The user sent an incorrect amount of money."
         );
-        balances[msg.sender] += msg.value;
-        globalBalance += msg.value;
-
-        emit UpdateBalance(balances[msg.sender]);
-        emit UpdateGlobalBalance(globalBalance);
-    }
-
-    function withdrawMoney(uint _amount) external {
-        require(
-            _amount <= address(this).balance,
-            "Trying to withdraw more money than the contract has."
-        );
-        require(
-            _amount <= balances[msg.sender],
-            "Trying to withdraw more money than the user has."
-        );
-        (bool success, ) = (msg.sender).call{value: _amount}("");
-        require(success, "Failed to withdraw money from contract.");
-
-        balances[msg.sender] -= _amount;
-        globalBalance -= _amount;
-
-        emit UpdateBalance(balances[msg.sender]);
-        emit UpdateGlobalBalance(globalBalance);
-    }
-
-    function showBalance() external view returns (uint) {
-        return balances[msg.sender];
-    }
-
-    function setGoal(string memory _goal, uint _duration, uint _amount) external {        
-        // require
 
         // check if the user already has goals in order to not distort usersCommitted value
         if (individualGoals[msg.sender].length == 0) {
@@ -88,17 +68,29 @@ contract Spouf is KeeperCompatibleInterface {
         individualGoals[msg.sender].push(Goal(
             _goal,
             block.timestamp + _duration,
-            _amount
+            msg.value
         ));
+
+        globalBalance += msg.value;
+        emit UpdateGlobalBalance(globalBalance);
+
+        emit UpdateGoals(individualGoals[msg.sender]);
     }
 
     function getGoal() external view returns (Goal[] memory) {
-        //require
         return individualGoals[msg.sender];
     }
 
     function deleteGoal(uint _index) external {
         require(_index < individualGoals[msg.sender].length, "Index out of bound.");
+        require(
+            individualGoals[msg.sender][_index].amount <= address(this).balance,
+            "Trying to withdraw more money than the contract has."
+        );
+
+        // we first give back the money to the user
+        (bool success, ) = (msg.sender).call{value: individualGoals[msg.sender][_index].amount}("");
+        require(success, "Failed to withdraw money from contract.");
 
         // extremely expensive lol, here we use a technique to shift all element after the _index to the left in order to squash the element wanted, and then we delete the last element (which is duplicated)
         for (uint i = _index; i < individualGoals[msg.sender].length - 1; i++) {
@@ -106,12 +98,12 @@ contract Spouf is KeeperCompatibleInterface {
         }
         individualGoals[msg.sender].pop();
 
-        // check if the user already has goals in order to not distort usersCommitted value
+        // check if the user already has goals in order to not distort usersCommitted's value
         if (individualGoals[msg.sender].length == 0) {
             // gas saving
             address[] memory m_usersCommitted = usersCommitted;
             
-            // we loop over the array to pick the searched user
+            // we loop over the array to pick the searched user to delete
             for (uint j = 0; j < m_usersCommitted.length; j++) {
                 if (m_usersCommitted[j] == msg.sender) {
                     // extremely expensive lol, same process as above, see : https://solidity-by-example.org/array/#examples-of-removing-array-element
@@ -122,6 +114,11 @@ contract Spouf is KeeperCompatibleInterface {
                 }
             }
         }
+
+        globalBalance -= individualGoals[msg.sender][_index].amount;
+        emit UpdateGlobalBalance(globalBalance);
+
+        emit UpdateGoals(individualGoals[msg.sender]);
     }
 
     // this function is used to check if a goal become out of date. We use ChainLink Keepers to execute that automatically.
@@ -171,15 +168,11 @@ contract Spouf is KeeperCompatibleInterface {
         // OOD stands for "out-of-date"
         GoalOOD memory goalOOD = abi.decode(performData, (GoalOOD));
         
-        // in the following parts, we have the possibility to reuse other function such as withdrawMoney() or deleteGoal(), why we don't do that is for the gas-efficiency, according to this response I got, it's better to copy paste code https://discord.com/channels/435685690936786944/447826495638077462/954099549142671381
+        // in the following parts, we have the possibility to reuse other function such as deleteGoal(), why we don't do that is for the gas-efficiency, according to this response I got, it's better to copy paste code https://discord.com/channels/435685690936786944/447826495638077462/954099549142671381
 
         require(
             individualGoals[goalOOD.addr][goalOOD.index].amount <= address(this).balance,
             "Trying to withdraw more money than the contract has."
-        );
-        require(
-            individualGoals[goalOOD.addr][goalOOD.index].amount <= balances[goalOOD.addr],
-            "Trying to withdraw more money than the user has."
         );
 
         // as explicity said, the money lost goes 10% for the Spouf team, and 90% for charities. Here we donate to GiveDirectly, see : https://donate.givedirectly.org/
@@ -188,17 +181,13 @@ contract Spouf is KeeperCompatibleInterface {
         (bool successCharities, ) = (0x750EF1D7a0b4Ab1c97B7A623D7917CcEb5ea779C).call{value: individualGoals[goalOOD.addr][goalOOD.index].amount.div(100).mul(90)}("");
         require(successTeam && successCharities, "Failed to withdraw money from contract.");
 
-        // here we remove the amount lost from the balances array
-        balances[goalOOD.addr] -= individualGoals[goalOOD.addr][goalOOD.index].amount;
-        globalBalance -= individualGoals[goalOOD.addr][goalOOD.index].amount;
-
         // extremely expensive lol, here we use a technique to shift all element after the _index to the left in order to squash the element wanted, and then we delete the last element (which is duplicated)
         for (uint l = goalOOD.index; l < individualGoals[goalOOD.addr].length - 1; l++) {
             individualGoals[goalOOD.addr][l] = individualGoals[goalOOD.addr][l + 1];
         }
         individualGoals[goalOOD.addr].pop();
 
-        // check if the user already has goals in order to not distort usersCommitted value
+        // check if the user already has goals in order to not distort usersCommitted's value
         if (individualGoals[goalOOD.addr].length == 0) {                
             // we loop over the array to pick the searched user
             for (uint m = 0; m < m_usersCommitted.length; m++) {
@@ -212,9 +201,10 @@ contract Spouf is KeeperCompatibleInterface {
             }
         }
 
-        // we update for the user
-        emit UpdateBalance(balances[goalOOD.addr]);
+        globalBalance -= individualGoals[goalOOD.addr][goalOOD.index].amount;
         emit UpdateGlobalBalance(globalBalance);
+
+        emit UpdateGoals(individualGoals[msg.sender]);
     }
 
 }
