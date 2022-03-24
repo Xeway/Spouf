@@ -9,7 +9,7 @@ async function main() {
     console.log("Account balance: ", accountBalance.toString());
 
     const spoufContractFactory = await hre.ethers.getContractFactory("Spouf");
-    const spoufContract = await upgrades.upgradeProxy("0x945b3A7B77645F93F8798Af22784730c300dA12D", spoufContractFactory);
+    const spoufContract = await upgrades.upgradeProxy("0xF4fD16D9eBB4eed3838AE5ffe7F3787C3b4a6105", spoufContractFactory);
 
     await spoufContract.deployed();
 

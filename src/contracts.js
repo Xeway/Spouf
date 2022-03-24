@@ -11,8 +11,8 @@ function setContractAddress(address) {
     contractAddress = address;
 }
 const contractAddresses = {
-    kovan: "0xa4E8a7ddC2B719767F63F0f8BA27184d268129db",
-    mumbai: "0x945b3A7B77645F93F8798Af22784730c300dA12D",
+    kovan: "0xFBf6b4a077366C73DcFA11e07b46Ba898D517AdF",
+    mumbai: "0xF4fD16D9eBB4eed3838AE5ffe7F3787C3b4a6105",
     matic: "",
     ethereum: ""
 }
