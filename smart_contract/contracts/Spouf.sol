@@ -54,7 +54,7 @@ contract Spouf is KeeperCompatibleInterface {
         return globalBalance;
     }
 
-    function setGoal(string memory _goal, uint _duration) external payable {        
+    function setGoal(string memory _goal, uint _deadline) external payable {
         require(
             msg.value >= 1 gwei,
             "The user sent an incorrect amount of money."
@@ -67,7 +67,7 @@ contract Spouf is KeeperCompatibleInterface {
         
         individualGoals[msg.sender].push(Goal(
             _goal,
-            block.timestamp + _duration,
+            _deadline,
             msg.value
         ));
 

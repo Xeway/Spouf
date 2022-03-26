@@ -197,6 +197,88 @@
           }
         }
       }
+    },
+    "153373fe58e746a8884b88b8293ced2fd3f55a15067beb57f0b7dc8f1c249f2d": {
+      "address": "0xF4fD16D9eBB4eed3838AE5ffe7F3787C3b4a6105",
+      "txHash": "0x25e3c8515b16bdf73d429ac0a870ad0b2622a1cae5c2e2db8e635c35e1bc9ad7",
+      "layout": {
+        "storage": [
+          {
+            "label": "globalBalance",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256",
+            "contract": "Spouf",
+            "src": "contracts\\Spouf.sol:13"
+          },
+          {
+            "label": "usersCommitted",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_address)dyn_storage",
+            "contract": "Spouf",
+            "src": "contracts\\Spouf.sol:24"
+          },
+          {
+            "label": "individualGoals",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_mapping(t_address,t_array(t_struct(Goal)398_storage)dyn_storage)",
+            "contract": "Spouf",
+            "src": "contracts\\Spouf.sol:25"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_struct(Goal)398_storage)dyn_storage": {
+            "label": "struct Spouf.Goal[]",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_array(t_struct(Goal)398_storage)dyn_storage)": {
+            "label": "mapping(address => struct Spouf.Goal[])",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Goal)398_storage": {
+            "label": "struct Spouf.Goal",
+            "members": [
+              {
+                "label": "goal",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "deadline",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          }
+        }
+      }
     }
   }
 }

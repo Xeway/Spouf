@@ -7,7 +7,36 @@
       <p>Connected with your wallet : {{ account }}</p>
       <p>Network : {{ network }}</p>
       <button @click="disconnect">Disconnect</button>
-      <div class="goals"></div>
+      <div>
+        <button @click="isFormGoal = true">Define a goal</button>
+        <button>Show stats</button>
+      </div>
+      <div v-if="isFormGoal" class="define-goal">
+        <button @click="isFormGoal = false">Leave</button>
+        <form class="defineGoalForm" @submit.prevent="defineGoal($event)">
+          <label for="goalsName">Goal's name</label>
+          <input id="goalsName" type="text" placeholder="Get a Six Pack 💪" name="goalName" required v-model="formGoal.name">
+
+          <label for="deadline">Deadline</label>
+          <input id="deadline" type="datetime-local" :min="
+            new Date().getFullYear() + '-' +
+            ((new Date().getMonth() + 1) < 10 ? '0' + (new Date().getMonth() + 1) : (new Date().getMonth() + 1)) + '-' +
+            (new Date().getDate() < 10 ? '0' + new Date().getDate() : new Date().getDate()) + 'T' +
+            (new Date().getHours() < 10 ? '0' + new Date().getHours() : new Date().getHours()) + ':' +
+            (new Date().getMinutes() < 10 ? '0' + new Date().getMinutes() : new Date().getMinutes())
+          " name="deadline" required v-model="formGoal.deadline">
+
+          <label for="amountWillingToLose">Amount willing to lose (in ETH)</label>
+          <input id="amountWillingToLose" type="text" inputmode="decimal" autocomplete="off" autocorrect="off" pattern="^[0-9]*[.,]?[0-9]*$" minlength="1" maxlength="79" placeholder="0.0" min="0.0" step="0.00000001" v-model="formGoal.amount">
+
+          <input type="submit" value="Validate">
+        </form>
+      </div>
+      <div v-if="!isFormGoal" class="goalsList">
+        <ul class="goals" v-for="goal in goals" :key="goal">
+          <li>{{ goal }}</li>
+        </ul>
+      </div>
     </div>
     <select name="networks" @change="changeNetwork($event)" id="networks" v-if="isMetaMask">
       <option value="Ethereum" :selected="network === 'Ethereum'">Ethereum</option>
@@ -77,8 +106,14 @@ export default {
     return {
       account: null,
       network: null,
-      balance: 0,
-      isMetaMask: false
+      goals: [],
+      isMetaMask: false,
+      isFormGoal: false,
+      formGoal: {
+        name: "",
+        deadline: "",
+        amount: 0
+      }
     }
   },
   methods: {
@@ -245,12 +280,23 @@ export default {
     },
     showGoals: async function() {
       await this.getContract(ethereum);
-      const balance = ethers.utils.formatEther(await contract.getGoal());
-      this.balance = balance;
+      const goals = await contract.getGoal();
+      this.goals = goals;
+      console.log(goals);
 
-      contract.on("UpdateBalance", (updatedBalance) => {
-        this.balance = ethers.utils.formatEther(updatedBalance);
+      contract.on("UpdateGoals", (updatedGoals) => {
+        this.goals = updatedGoals;
       });
+    },
+    defineGoal: async function(event) {
+      await contract.setGoal(
+        this.formGoal.name,
+        Math.floor(new Date(this.formGoal.deadline).getTime() / 1000),
+        {
+          value: ethers.utils.parseEther(this.formGoal.amount),
+          gasLimit: 300000
+        }
+      );
     }
   },
   beforeCreate() {
