@@ -9,7 +9,7 @@ async function main() {
     console.log("Account balance: ", accountBalance.toString());
 
     const proxyContractFactory = await hre.ethers.getContractFactory("Spouf");
-    const proxyContract = await upgrades.deployProxy(proxyContractFactory);
+    const proxyContract = await upgrades.deployProxy(proxyContractFactory, ["0xb7a4F3E9097C08dA09517b5aB877F7a917224ede"], { initializer: 'initialize' });
 
     await proxyContract.deployed();
 

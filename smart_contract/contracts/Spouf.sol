@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import "hardhat/console.sol";
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@chainlink/contracts/src/v0.8/KeeperCompatible.sol";
 
 contract Spouf is KeeperCompatibleInterface {
@@ -27,6 +28,16 @@ contract Spouf is KeeperCompatibleInterface {
     struct GoalOOD {
         address addr;
         uint index;
+    }
+
+    bool initialized;
+    IERC20 USDC;
+
+    // constructor
+    function initialize(address _USDCAddress) public {
+        require(!initialized, "Contract instance has already been initialized");
+        initialized = true;
+        USDC = IERC20(_USDCAddress);
     }
 
     fallback() external payable {
@@ -54,11 +65,15 @@ contract Spouf is KeeperCompatibleInterface {
         return globalBalance;
     }
 
-    function setGoal(string memory _goal, uint _deadline) external payable {
+    function setGoal(string memory _goal, uint _deadline, uint _amount) external payable {
         require(
-            msg.value >= 1 gwei,
+            _amount >= 1,
             "The user sent an incorrect amount of money."
         );
+        require(_deadline > block.timestamp, "Deadline too short.");
+
+        bool USDCTransfer = USDC.transferFrom(msg.sender, address(this), _amount);
+        require(USDCTransfer, "Transaction failed");
 
         // check if the user already has goals in order to not distort usersCommitted value
         if (individualGoals[msg.sender].length == 0) {
@@ -68,10 +83,10 @@ contract Spouf is KeeperCompatibleInterface {
         individualGoals[msg.sender].push(Goal(
             _goal,
             _deadline,
-            msg.value
+            _amount
         ));
 
-        globalBalance += msg.value;
+        globalBalance += _amount;
         emit UpdateGlobalBalance(globalBalance);
 
         emit UpdateGoals(individualGoals[msg.sender]);
@@ -84,12 +99,12 @@ contract Spouf is KeeperCompatibleInterface {
     function deleteGoal(uint _index) external {
         require(_index < individualGoals[msg.sender].length, "Index out of bound.");
         require(
-            individualGoals[msg.sender][_index].amount <= address(this).balance,
+            individualGoals[msg.sender][_index].amount <= USDC.balanceOf(address(this)),
             "Trying to withdraw more money than the contract has."
         );
 
         // we first give back the money to the user
-        (bool success, ) = (msg.sender).call{value: individualGoals[msg.sender][_index].amount}("");
+        bool success = USDC.transfer(msg.sender, individualGoals[msg.sender][_index].amount);
         require(success, "Failed to withdraw money from contract.");
 
         // extremely expensive lol, here we use a technique to shift all element after the _index to the left in order to squash the element wanted, and then we delete the last element (which is duplicated)
@@ -177,8 +192,8 @@ contract Spouf is KeeperCompatibleInterface {
 
         // as explicity said, the money lost goes 10% for the Spouf team, and 90% for charities. Here we donate to GiveDirectly, see : https://donate.givedirectly.org/
         // we can't use rational numbers like 0.1, so we dividide by 100 and then multiply by 10 to get 10%
-        (bool successTeam, ) = (0xE4E6dC19efd564587C46dCa2ED787e45De17E7E1).call{value: individualGoals[goalOOD.addr][goalOOD.index].amount.div(100).mul(10)}("");
-        (bool successCharities, ) = (0x750EF1D7a0b4Ab1c97B7A623D7917CcEb5ea779C).call{value: individualGoals[goalOOD.addr][goalOOD.index].amount.div(100).mul(90)}("");
+        bool successTeam = USDC.transfer(0xE4E6dC19efd564587C46dCa2ED787e45De17E7E1, individualGoals[goalOOD.addr][goalOOD.index].amount.div(100).mul(10));
+        bool successCharities = USDC.transfer(0x750EF1D7a0b4Ab1c97B7A623D7917CcEb5ea779C, individualGoals[goalOOD.addr][goalOOD.index].amount.div(100).mul(90));
         require(successTeam && successCharities, "Failed to withdraw money from contract.");
 
         // extremely expensive lol, here we use a technique to shift all element after the _index to the left in order to squash the element wanted, and then we delete the last element (which is duplicated)

@@ -26,7 +26,7 @@
             (new Date().getMinutes() < 10 ? '0' + new Date().getMinutes() : new Date().getMinutes())
           " name="deadline" required v-model="formGoal.deadline">
 
-          <label for="amountWillingToLose">Amount willing to lose (in ETH)</label>
+          <label for="amountWillingToLose">Amount willing to lose (in USDC)</label>
           <input id="amountWillingToLose" type="text" inputmode="decimal" autocomplete="off" autocorrect="off" pattern="^[0-9]*[.,]?[0-9]*$" minlength="1" maxlength="79" placeholder="0.0" min="0.0" step="0.00000001" v-model="formGoal.amount">
 
           <input type="submit" value="Validate">
@@ -59,9 +59,13 @@ import {
   WalletLink,
 
   contractAddress,
-  setContractAddress,
   contractAddresses,
+  USDCAddress,
+  USDCAddresses,
+  setContractAddress,
+
   contractABI,
+  ERC20ABI,
 
   infuraId
 } from "@/contracts.js";
@@ -98,6 +102,7 @@ const web3Modal = new Web3Modal({
 });
 
 let contract = null;
+let USDC = null;
 
 let ethereum = null;
 
@@ -151,7 +156,9 @@ export default {
       const provider = new ethers.providers.Web3Provider(instance);
 
       const signer = provider.getSigner();
+
       const spoufContract = new ethers.Contract(contractAddress, contractABI, signer);
+      USDC = new ethers.Contract(USDCAddress, ERC20ABI, signer);
 
       contract = spoufContract;
 
@@ -254,23 +261,23 @@ export default {
         switch (event) {
           case "0x1": case 1:
             this.network = "Ethereum";
-            setContractAddress(contractAddresses.ethereum);
+            setContractAddress(contractAddresses.ethereum, USDCAddresses.ethereum);
             break;
           case "0x42": case 42: case "0x2a":
             this.network = "Kovan";
-            setContractAddress(contractAddresses.kovan);
+            setContractAddress(contractAddresses.kovan, USDCAddresses.kovan);
             break;
           case "0x89": case 89: case 137:
             this.network = "Matic";
-            setContractAddress(contractAddresses.matic);
+            setContractAddress(contractAddresses.matic, USDCAddresses.matic);
             break;
           case "0x13881": case 80001:
             this.network = "Mumbai";
-            setContractAddress(contractAddresses.mumbai);
+            setContractAddress(contractAddresses.mumbai, USDCAddresses.mumbai);
             break;
           default:
             this.network = false;
-            setContractAddress("0x");
+            setContractAddress("0x", "0x");
             return;
         }
       }
@@ -289,13 +296,23 @@ export default {
       });
     },
     defineGoal: async function(event) {
-      await contract.setGoal(
-        this.formGoal.name,
-        Math.floor(new Date(this.formGoal.deadline).getTime() / 1000),
-        {
-          value: ethers.utils.parseEther(this.formGoal.amount),
-          gasLimit: 300000
-        }
+      await this.getContract(ethereum);
+
+      // the decimals are differents according to the different ERC20 of different networks
+      let USDCAmount;
+      if (USDCAddress === USDCAddresses.mumbai) {
+        USDCAmount = ethers.utils.parseUnits(this.formGoal.amount.toString(), 18);
+      } else {
+        USDCAmount = ethers.utils.parseUnits(this.formGoal.amount.toString(), 6);
+      }
+
+      USDC.approve(contractAddress, USDCAmount).then(
+        await contract.setGoal(
+          this.formGoal.name,
+          Math.floor(new Date(this.formGoal.deadline).getTime() / 1000),
+          USDCAmount,
+          { gasLimit: 300000 }
+        )
       );
     }
   },

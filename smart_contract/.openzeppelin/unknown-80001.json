@@ -14,6 +14,16 @@
       "address": "0xF4fD16D9eBB4eed3838AE5ffe7F3787C3b4a6105",
       "txHash": "0xda6670e7e7d2672960c7d5668c739d097886f3e73c76f13df328397c3d6ffed3",
       "kind": "transparent"
+    },
+    {
+      "address": "0x5cF933A4e3A09c3C56044FE8CFdDe47cB38a862F",
+      "txHash": "0x12618e88401fd40c051ad6819083818dc6b82e94031664fe9da7a543fd5e5f7c",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x7B9c106755dd5c652068BAbaC7A09496D3295464",
+      "txHash": "0x87cb106e52e5a2a8a48574193870936af4e85861ad5ffde2df1682e73f7e61fe",
+      "kind": "transparent"
     }
   ],
   "impls": {
@@ -245,6 +255,112 @@
             "numberOfBytes": "32"
           },
           "t_struct(Goal)398_storage": {
+            "label": "struct Spouf.Goal",
+            "members": [
+              {
+                "label": "goal",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "deadline",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          }
+        }
+      }
+    },
+    "dd7dba2d77189b0d13c4b5ed5978d153c4dc277c7f959d2712dce62dc3ed2d21": {
+      "address": "0x4dC4C55fb6c2E904430842A6F2aFD09a3cDe24b4",
+      "txHash": "0x1e29e33320a2ed623d24f5e1c2ba2fc32c62d0fd5352f59af61145722921a50c",
+      "layout": {
+        "storage": [
+          {
+            "label": "globalBalance",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256",
+            "contract": "Spouf",
+            "src": "contracts\\Spouf.sol:14"
+          },
+          {
+            "label": "usersCommitted",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_address)dyn_storage",
+            "contract": "Spouf",
+            "src": "contracts\\Spouf.sol:25"
+          },
+          {
+            "label": "individualGoals",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_mapping(t_address,t_array(t_struct(Goal)477_storage)dyn_storage)",
+            "contract": "Spouf",
+            "src": "contracts\\Spouf.sol:26"
+          },
+          {
+            "label": "initialized",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_bool",
+            "contract": "Spouf",
+            "src": "contracts\\Spouf.sol:33"
+          },
+          {
+            "label": "USDC",
+            "offset": 1,
+            "slot": "3",
+            "type": "t_contract(IERC20)135",
+            "contract": "Spouf",
+            "src": "contracts\\Spouf.sol:34"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_struct(Goal)477_storage)dyn_storage": {
+            "label": "struct Spouf.Goal[]",
+            "numberOfBytes": "32"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(IERC20)135": {
+            "label": "contract IERC20",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_array(t_struct(Goal)477_storage)dyn_storage)": {
+            "label": "mapping(address => struct Spouf.Goal[])",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Goal)477_storage": {
             "label": "struct Spouf.Goal",
             "members": [
               {
