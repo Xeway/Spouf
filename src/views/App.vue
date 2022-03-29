@@ -322,12 +322,7 @@ export default {
       await this.getContract(ethereum);
 
       // the decimals are different according to the different ERC20 of different networks
-      let USDCAmount;
-      if (USDCAddress === USDCAddresses.mumbai) {
-        USDCAmount = ethers.utils.parseUnits(this.formGoal.amount.toString(), 18);
-      } else {
-        USDCAmount = ethers.utils.parseUnits(this.formGoal.amount.toString(), 6);
-      }
+      const USDCAmount = ethers.utils.parseUnits(this.formGoal.amount.toString(), await USDC.decimals());
 
       USDC.approve(contractAddress, USDCAmount).then(
         await contract.setGoal(
