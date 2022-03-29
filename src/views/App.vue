@@ -236,6 +236,29 @@ export default {
           if (event.target.value === "Ethereum" || event.target.value === "Matic" || event.target.value === "Kovan" || event.target.value === "Mumbai") {
             this.network = event.target.value;
           }
+
+          switch (event.target.value) {
+            case "Ethereum":
+              this.network = "Ethereum";
+              setContractAddress(contractAddresses.ethereum, USDCAddresses.ethereum);
+              break;
+            case "Kovan":
+              this.network = "Kovan";
+              setContractAddress(contractAddresses.kovan, USDCAddresses.kovan);
+              break;
+            case "Matic":
+              this.network = "Matic";
+              setContractAddress(contractAddresses.matic, USDCAddresses.matic);
+              break;
+            case "Mumbai":
+              this.network = "Mumbai";
+              setContractAddress(contractAddresses.mumbai, USDCAddresses.mumbai);
+              break;
+            default:
+              this.network = false;
+              setContractAddress("0x", "0x");
+              return;
+          }
         } catch (switchError) {
           if (switchError.code === 4902) {
             try {
@@ -298,7 +321,7 @@ export default {
     defineGoal: async function(event) {
       await this.getContract(ethereum);
 
-      // the decimals are differents according to the different ERC20 of different networks
+      // the decimals are different according to the different ERC20 of different networks
       let USDCAmount;
       if (USDCAddress === USDCAddresses.mumbai) {
         USDCAmount = ethers.utils.parseUnits(this.formGoal.amount.toString(), 18);
