@@ -33,8 +33,13 @@
         </form>
       </div>
       <div v-if="!isFormGoal" class="goalsList">
-        <ul class="goals" v-for="goal in goals" :key="goal">
-          <li>{{ goal }}</li>
+        <ul class="goals" v-for="(goal, index) in goals" :key="goal">
+          <li>
+            Name: {{ goal.goal }}
+            Deadline: {{ new Date(goal.deadline * 1000).toString().slice(0, 21) }}
+            Pledge: {{ parseAmount(goal.amount.toString()) }}
+            <button @click="deleteGoal(index)">Delete</button>
+          </li>
         </ul>
       </div>
     </div>
@@ -312,7 +317,6 @@ export default {
       await this.getContract(ethereum);
       const goals = await contract.getGoal();
       this.goals = goals;
-      console.log(goals);
 
       contract.on("UpdateGoals", (updatedGoals) => {
         this.goals = updatedGoals;
@@ -332,6 +336,25 @@ export default {
           { gasLimit: 300000 }
         )
       );
+    },
+    deleteGoal: async function(index) {
+      if (index < this.goals.length) {
+        await this.getContract(ethereum);
+
+        await contract.deleteGoal(index);
+      } else {
+        console.log("Failed (index out of bound).");
+      }
+    },
+    parseAmount: function(amount) {
+      this.getContract(ethereum);
+
+      // we cannot use asynchronous code so we're obligated to use that crap technique
+      if (USDCAddress === USDCAddresses.mumbai) {
+        return ethers.utils.formatUnits(amount, 18);
+      } else {
+        return ethers.utils.formatUnits(amount, 6);
+      }
     }
   },
   beforeCreate() {
