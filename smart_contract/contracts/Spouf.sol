@@ -35,7 +35,7 @@ contract Spouf is KeeperCompatibleInterface {
 
     // constructor
     function initialize(address _USDCAddress) public {
-        require(!initialized, "Contract instance has already been initialized");
+        require(!initialized, "Contract instance has already been initialized.");
         initialized = true;
         USDC = IERC20(_USDCAddress);
     }
@@ -65,7 +65,7 @@ contract Spouf is KeeperCompatibleInterface {
         return globalBalance;
     }
 
-    function setGoal(string memory _goal, uint _deadline, uint _amount) external payable {
+    function setGoal(string memory _goal, uint _deadline, uint _amount) external {
         require(
             _amount >= 1,
             "The user sent an incorrect amount of money."
@@ -73,7 +73,7 @@ contract Spouf is KeeperCompatibleInterface {
         require(_deadline > block.timestamp, "Deadline too short.");
 
         bool USDCTransfer = USDC.transferFrom(msg.sender, address(this), _amount);
-        require(USDCTransfer, "Transaction failed");
+        require(USDCTransfer, "Transaction failed.");
 
         // check if the user already has goals in order to not distort usersCommitted value
         if (individualGoals[msg.sender].length == 0) {
@@ -186,7 +186,7 @@ contract Spouf is KeeperCompatibleInterface {
         // in the following parts, we have the possibility to reuse other function such as deleteGoal(), why we don't do that is for the gas-efficiency, according to this response I got, it's better to copy paste code https://discord.com/channels/435685690936786944/447826495638077462/954099549142671381
 
         require(
-            individualGoals[goalOOD.addr][goalOOD.index].amount <= address(this).balance,
+            individualGoals[goalOOD.addr][goalOOD.index].amount <= USDC.balanceOf(address(this)),
             "Trying to withdraw more money than the contract has."
         );
 
