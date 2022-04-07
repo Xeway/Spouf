@@ -8,10 +8,10 @@
       <p>Network : {{ network }}</p>
       <button @click="disconnect">Disconnect</button>
       <div>
-        <button @click="isFormGoal = true">Define a goal</button>
-        <button>Show stats</button>
+        <button @click="isFormGoal = true; isShowStats = false">Define a goal</button>
+        <button @click="isShowStats = true; isFormGoal = false; showStats()">Show stats</button>
       </div>
-      <div v-if="isFormGoal" class="define-goal">
+      <div v-if="isFormGoal && !isShowStats" class="define-goal">
         <button @click="isFormGoal = false">Leave</button>
         <form class="defineGoalForm" @submit.prevent="defineGoal($event)">
           <label for="goalsName">Goal's name</label>
@@ -32,7 +32,11 @@
           <input type="submit" value="Validate">
         </form>
       </div>
-      <div v-if="!isFormGoal" class="goalsList">
+      <div v-if="isShowStats && !isFormGoal">
+        <button @click="isShowStats = false">Leave</button>
+        <a :href="bcExplorers.bcExpLink" id="etherscan-link">See it on {{ bcExplorers.bcExpName }}</a>
+      </div>
+      <div v-if="!isFormGoal && !isShowStats" class="goalsList">
         <ul class="goals" v-for="(goal, index) in goals" :key="goal">
           <li>
             Name: {{ goal.goal }}
@@ -119,10 +123,15 @@ export default {
       goals: [],
       isMetaMask: false,
       isFormGoal: false,
+      isShowStats: false,
       formGoal: {
         name: "",
         deadline: "",
         amount: 0
+      },
+      bcExplorers: {
+        bcExpName: "",
+        bcExpLink: ""
       }
     }
   },
@@ -181,6 +190,7 @@ export default {
         }
         this.account = accounts[0];
         this.showGoals();
+        this.showStats();
       });
 
       ethereum.on("chainChanged", (chainId) => {
@@ -189,6 +199,7 @@ export default {
 
       ethereum.on("connect", (info) => {
         this.showGoals();
+        this.showStats();
       });
 
       // This event is not triggered when disconnected, see : https://github.com/MetaMask/metamask-extension/issues/10125
@@ -312,6 +323,7 @@ export default {
 
       await this.getContract(ethereum);
       await this.showGoals();
+      await this.showStats();
     },
     showGoals: async function() {
       await this.getContract(ethereum);
@@ -345,6 +357,28 @@ export default {
       } else {
         console.log("Failed (index out of bound).");
       }
+    },
+    showStats: async function() {
+      await this.getContract(ethereum);
+
+      let name;
+      let link;
+      if (this.network === "Ethereum") {
+        name = "Etherscan";
+        link = `https://etherscan.io/address/${this.account}?toaddress=${contractAddresses.ethereum}`;
+      } else if (this.network === "Kovan") {
+        name = "Etherscan";
+        link = `https://kovan.etherscan.io/address/${this.account}?toaddress=${contractAddresses.kovan}`;
+      } else if (this.network === "Matic") {
+        name = "PolygonScan";
+        link = `https://polygonscan.io/address/${this.account}?toaddress=${contractAddresses.matic}`;
+      } else if (this.network === "Mumbai") {
+        name = "PolygonScan";
+        link = `https://mumbai.polygonscan.io/address/${this.account}?toaddress=${contractAddresses.mumbai}`;
+      }
+
+      this.bcExplorers.bcExpName = name;
+      this.bcExplorers.bcExpLink = link;
     },
     parseAmount: function(amount) {
       this.getContract(ethereum);
