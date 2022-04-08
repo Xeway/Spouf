@@ -16,10 +16,17 @@ contract Spouf is KeeperCompatibleInterface {
     event UpdateGoals(Goal[]);
     event UpdateGlobalBalance(uint _globalBalance);
 
+    enum GoalStatus {
+        Created,
+        Expired,
+        Cancelled
+    }
+
     struct Goal {
         string goal;
         uint deadline;
         uint amount;
+        GoalStatus status;
     }
 
     address[] usersCommitted;
@@ -50,7 +57,7 @@ contract Spouf is KeeperCompatibleInterface {
 
     function donate() public payable {
         require(
-            msg.value >= 1 gwei,
+            msg.value >= 1 wei,
             "The user sent an incorrect amount of money."
         );
 
@@ -83,7 +90,8 @@ contract Spouf is KeeperCompatibleInterface {
         individualGoals[msg.sender].push(Goal(
             _goal,
             _deadline,
-            _amount
+            _amount,
+            GoalStatus.Created
         ));
 
         globalBalance += _amount;
@@ -107,12 +115,8 @@ contract Spouf is KeeperCompatibleInterface {
         bool success = USDC.transfer(msg.sender, individualGoals[msg.sender][_index].amount);
         require(success, "Failed to withdraw money from contract.");
 
-        // extremely expensive lol, here we use a technique to shift all element after the _index to the left in order to squash the element wanted, and then we delete the last element (which is duplicated)
-        for (uint i = _index; i < individualGoals[msg.sender].length - 1; i++) {
-            individualGoals[msg.sender][i] = individualGoals[msg.sender][i + 1];
-        }
-        individualGoals[msg.sender].pop();
-
+        individualGoals[msg.sender][_index].status = GoalStatus.Cancelled;
+        
         // check if the user already has goals in order to not distort usersCommitted's value
         if (individualGoals[msg.sender].length == 0) {
             // gas saving
@@ -164,7 +168,7 @@ contract Spouf is KeeperCompatibleInterface {
         // gas saving
         address[] memory m_usersCommitted = usersCommitted;
 
-        //* we revalidate the upkeep (as adviced in the doc)
+        // { we revalidate the upkeep (as adviced in the doc)
 
         bool upkeepValidated = false;
         // we loop over all the users
@@ -178,7 +182,7 @@ contract Spouf is KeeperCompatibleInterface {
         }
         require(upkeepValidated, "There is a problem with Chainlink.");
 
-        //*
+        // }
 
         // OOD stands for "out-of-date"
         GoalOOD memory goalOOD = abi.decode(performData, (GoalOOD));
@@ -196,11 +200,7 @@ contract Spouf is KeeperCompatibleInterface {
         bool successCharities = USDC.transfer(0x750EF1D7a0b4Ab1c97B7A623D7917CcEb5ea779C, individualGoals[goalOOD.addr][goalOOD.index].amount.div(100).mul(90));
         require(successTeam && successCharities, "Failed to withdraw money from contract.");
 
-        // extremely expensive lol, here we use a technique to shift all element after the _index to the left in order to squash the element wanted, and then we delete the last element (which is duplicated)
-        for (uint l = goalOOD.index; l < individualGoals[goalOOD.addr].length - 1; l++) {
-            individualGoals[goalOOD.addr][l] = individualGoals[goalOOD.addr][l + 1];
-        }
-        individualGoals[goalOOD.addr].pop();
+        individualGoals[goalOOD.addr][goalOOD.index].status = GoalStatus.Expired;
 
         // check if the user already has goals in order to not distort usersCommitted's value
         if (individualGoals[goalOOD.addr].length == 0) {                
