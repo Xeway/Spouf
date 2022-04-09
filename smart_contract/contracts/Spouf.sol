@@ -18,6 +18,7 @@ contract Spouf is KeeperCompatibleInterface {
 
     enum GoalStatus {
         Created,
+        Completed,
         Expired,
         Cancelled
     }
@@ -39,12 +40,16 @@ contract Spouf is KeeperCompatibleInterface {
 
     bool initialized;
     IERC20 USDC;
+    IERC20 LINK;
+
+    uint constant LINK_FEES = 0.2 ether;
 
     // constructor
-    function initialize(address _USDCAddress) public {
+    function initialize(address _USDCAddress, address _LINKAddress) public {
         require(!initialized, "Contract instance has already been initialized.");
         initialized = true;
         USDC = IERC20(_USDCAddress);
+        LINK = IERC20(_LINKAddress);
     }
 
     fallback() external payable {
@@ -79,6 +84,10 @@ contract Spouf is KeeperCompatibleInterface {
         );
         require(_deadline > block.timestamp, "Deadline too short.");
 
+        // the user sends 0.2 LINK in case performUpkeep is executed
+        bool LINKTransfer = LINK.transferFrom(msg.sender, address(this), LINK_FEES);
+        require(LINKTransfer, "LINK transaction failed.");
+
         bool USDCTransfer = USDC.transferFrom(msg.sender, address(this), _amount);
         require(USDCTransfer, "Transaction failed.");
 
@@ -104,18 +113,25 @@ contract Spouf is KeeperCompatibleInterface {
         return individualGoals[msg.sender];
     }
 
-    function deleteGoal(uint _index) external {
+    function deleteGoal(uint _index, bool _completed) external {
         require(_index < individualGoals[msg.sender].length, "Index out of bound.");
         require(
             individualGoals[msg.sender][_index].amount <= USDC.balanceOf(address(this)),
             "Trying to withdraw more money than the contract has."
         );
 
-        // we first give back the money to the user
-        bool success = USDC.transfer(msg.sender, individualGoals[msg.sender][_index].amount);
-        require(success, "Failed to withdraw money from contract.");
+        // we first give back the money to the user + the LINK fees
+        bool LINKTransfer = LINK.transfer(msg.sender, LINK_FEES);
+        require(LINKTransfer, "Failed to withdraw LINK from contract.");
 
-        individualGoals[msg.sender][_index].status = GoalStatus.Cancelled;
+        bool USDCTransfer = USDC.transfer(msg.sender, individualGoals[msg.sender][_index].amount);
+        require(USDCTransfer, "Failed to withdraw money from contract.");
+
+        if (_completed) {
+            individualGoals[msg.sender][_index].status = GoalStatus.Completed;
+        } else {
+            individualGoals[msg.sender][_index].status = GoalStatus.Cancelled;
+        }
         
         // check if the user already has goals in order to not distort usersCommitted's value
         if (individualGoals[msg.sender].length == 0) {
