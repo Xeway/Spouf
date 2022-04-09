@@ -359,7 +359,7 @@ export default {
       if (index < this.goals.length) {
         await this.getContract(ethereum);
 
-        await contract.deleteGoal(index);
+        await contract.deleteGoal(index, false);
       } else {
         console.log("Failed (index out of bound).");
       }
