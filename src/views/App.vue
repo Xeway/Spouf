@@ -71,6 +71,8 @@ import {
   contractAddresses,
   USDCAddress,
   USDCAddresses,
+  LINKAddress,
+  LINKAddresses,
   setContractAddress,
 
   contractABI,
@@ -112,6 +114,7 @@ const web3Modal = new Web3Modal({
 
 let contract = null;
 let USDC = null;
+let LINK = null;
 
 let ethereum = null;
 
@@ -173,6 +176,7 @@ export default {
 
       const spoufContract = new ethers.Contract(contractAddress, contractABI, signer);
       USDC = new ethers.Contract(USDCAddress, ERC20ABI, signer);
+      LINK = new ethers.Contract(LINKAddress, ERC20ABI, signer);
 
       contract = spoufContract;
 
@@ -256,23 +260,23 @@ export default {
           switch (event.target.value) {
             case "Ethereum":
               this.network = "Ethereum";
-              setContractAddress(contractAddresses.ethereum, USDCAddresses.ethereum);
+              setContractAddress(contractAddresses.ethereum, USDCAddresses.ethereum, LINKAddresses.ethereum);
               break;
             case "Kovan":
               this.network = "Kovan";
-              setContractAddress(contractAddresses.kovan, USDCAddresses.kovan);
+              setContractAddress(contractAddresses.kovan, USDCAddresses.kovan, LINKAddresses.kovan);
               break;
             case "Matic":
               this.network = "Matic";
-              setContractAddress(contractAddresses.matic, USDCAddresses.matic);
+              setContractAddress(contractAddresses.matic, USDCAddresses.matic, LINKAddresses.matic);
               break;
             case "Mumbai":
               this.network = "Mumbai";
-              setContractAddress(contractAddresses.mumbai, USDCAddresses.mumbai);
+              setContractAddress(contractAddresses.mumbai, USDCAddresses.mumbai, LINKAddresses.mumbai);
               break;
             default:
               this.network = false;
-              setContractAddress("0x", "0x");
+              setContractAddress("0x", "0x", "0x");
               return;
           }
         } catch (switchError) {
@@ -300,23 +304,23 @@ export default {
         switch (event) {
           case "0x1": case 1:
             this.network = "Ethereum";
-            setContractAddress(contractAddresses.ethereum, USDCAddresses.ethereum);
+            setContractAddress(contractAddresses.ethereum, USDCAddresses.ethereum, LINKAddresses.ethereum);
             break;
           case "0x42": case 42: case "0x2a":
             this.network = "Kovan";
-            setContractAddress(contractAddresses.kovan, USDCAddresses.kovan);
+            setContractAddress(contractAddresses.kovan, USDCAddresses.kovan, LINKAddresses.kovan);
             break;
           case "0x89": case 89: case 137:
             this.network = "Matic";
-            setContractAddress(contractAddresses.matic, USDCAddresses.matic);
+            setContractAddress(contractAddresses.matic, USDCAddresses.matic, LINKAddresses.matic);
             break;
           case "0x13881": case 80001:
             this.network = "Mumbai";
-            setContractAddress(contractAddresses.mumbai, USDCAddresses.mumbai);
+            setContractAddress(contractAddresses.mumbai, USDCAddresses.mumbai, LINKAddresses.mumbai);
             break;
           default:
             this.network = false;
-            setContractAddress("0x", "0x");
+            setContractAddress("0x", "0x", "0x");
             return;
         }
       }
@@ -341,11 +345,13 @@ export default {
       const USDCAmount = ethers.utils.parseUnits(this.formGoal.amount.toString(), await USDC.decimals());
 
       USDC.approve(contractAddress, USDCAmount).then(
-        await contract.setGoal(
-          this.formGoal.name,
-          Math.floor(new Date(this.formGoal.deadline).getTime() / 1000),
-          USDCAmount,
-          { gasLimit: 300000 }
+        LINK.approve(contractAddress, ethers.utils.parseEther("0.2")).then(
+          await contract.setGoal(
+            this.formGoal.name,
+            Math.floor(new Date(this.formGoal.deadline).getTime() / 1000),
+            USDCAmount,
+            { gasLimit: 300000 }
+          )
         )
       );
     },

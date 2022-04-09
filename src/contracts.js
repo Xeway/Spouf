@@ -7,10 +7,10 @@ import WalletConnectProvider from "@walletconnect/web3-provider";
 import Fortmatic from "fortmatic";
 import WalletLink from "walletlink";
 
-let contractAddress = "0xf058C302b1230FF9DB41fDeBD60d6CBFa8499c41";
+let contractAddress = "0xB6d0A5157370c7e9F1BcA4Ab860fc1d3514cF701";
 const contractAddresses = {
-    kovan: "0xf058C302b1230FF9DB41fDeBD60d6CBFa8499c41",
-    mumbai: "0x7B9c106755dd5c652068BAbaC7A09496D3295464",
+    kovan: "0xB6d0A5157370c7e9F1BcA4Ab860fc1d3514cF701",
+    mumbai: "0x60Ff3A096A4779d28fc25ac9b084591C5730E82b",
     matic: "",
     ethereum: ""
 }
@@ -23,9 +23,18 @@ const USDCAddresses = {
     ethereum: ""
 }
 
-function setContractAddress(spoufAddress, USDCContract) {
+let LINKAddress = "0xa36085F69e2889c224210F603D836748e7dC0088";
+const LINKAddresses = {
+    kovan: "0xa36085F69e2889c224210F603D836748e7dC0088",
+    mumbai: "0x326C977E6efc84E512bB9C30f76E30c160eD06FB",
+    matic: "",
+    ethereum: ""
+}
+
+function setContractAddress(spoufAddress, USDCContract, LINKContract) {
     contractAddress = spoufAddress;
     USDCAddress = USDCContract;
+    LINKAddress = LINKContract;
 }
 
 const contractABI = abi.abi;
@@ -45,6 +54,8 @@ export {
     contractAddresses,
     USDCAddress,
     USDCAddresses,
+    LINKAddress,
+    LINKAddresses,
     setContractAddress,
 
     contractABI,
