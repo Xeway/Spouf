@@ -11,7 +11,7 @@ contract Spouf is KeeperCompatibleInterface {
 
     using SafeMath for uint;
 
-    uint globalBalance;
+    uint public globalBalance;
 
     event UpdateGoals(Goal[]);
     event UpdateGlobalBalance(uint _globalBalance);
@@ -71,10 +71,6 @@ contract Spouf is KeeperCompatibleInterface {
         (bool successTeam, ) = (0xE4E6dC19efd564587C46dCa2ED787e45De17E7E1).call{value: msg.value.div(100).mul(10)}("");
         (bool successCharities, ) = (0x750EF1D7a0b4Ab1c97B7A623D7917CcEb5ea779C).call{value: msg.value.div(100).mul(90)}("");
         require(successTeam && successCharities, "Failed to donate.");
-    }
-
-    function showGlobalBalance() external view returns (uint) {
-        return globalBalance;
     }
 
     function setGoal(string memory _goal, uint _deadline, uint _amount) external {

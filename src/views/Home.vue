@@ -36,7 +36,7 @@ export default {
     });
     const spoufContractKovan = new ethers.Contract(contractAddresses.kovan, contractABI, providerKovan);
     const USDCKovan = new ethers.Contract(USDCAddresses.kovan, ERC20ABI, providerKovan);
-    const globalBalanceKovan = parseInt(ethers.utils.formatUnits(parseInt(await spoufContractKovan.showGlobalBalance()).toString(), await USDCKovan.decimals()));
+    const globalBalanceKovan = parseInt(ethers.utils.formatUnits(parseInt(await spoufContractKovan.globalBalance()).toString(), await USDCKovan.decimals()));
 
     spoufContractKovan.on("UpdateGlobalBalance", async(globalBalance) => {
       this.globalBalance = this.globalBalance + (parseInt(ethers.utils.formatUnits(globalBalance, await USDCKovan.decimals())) - globalBalanceKovan);
@@ -46,7 +46,7 @@ export default {
     const providerMumbai = new ethers.providers.AlchemyProvider("maticmum", alchemyId);
     const spoufContractMumbai = new ethers.Contract(contractAddresses.mumbai, contractABI, providerMumbai);
     const USDCMumbai = new ethers.Contract(USDCAddresses.mumbai, ERC20ABI, providerMumbai);
-    const globalBalanceMumbai = parseInt(ethers.utils.formatUnits(parseInt(await spoufContractMumbai.showGlobalBalance()).toString(), await USDCMumbai.decimals()));
+    const globalBalanceMumbai = parseInt(ethers.utils.formatUnits(parseInt(await spoufContractMumbai.globalBalance()).toString(), await USDCMumbai.decimals()));
 
     spoufContractMumbai.on("UpdateGlobalBalance", async(globalBalance) => {
       this.globalBalance = this.globalBalance + (parseInt(ethers.utils.formatUnits(globalBalance, await USDCMumbai.decimals())) - globalBalanceMumbai);
@@ -59,7 +59,7 @@ export default {
     });
     const spoufContractMatic = new ethers.Contract(contractAddresses.matic, contractABI, providerMatic);
     const USDCMatic = new ethers.Contract(USDCAddresses.matic, ERC20ABI, providerMatic);
-    const globalBalanceMatic = parseInt(ethers.utils.formatUnits(parseInt(await spoufContractMatic.showGlobalBalance()).toString(), await USDCMatic.decimals()));
+    const globalBalanceMatic = parseInt(ethers.utils.formatUnits(parseInt(await spoufContractMatic.globalBalance()).toString(), await USDCMatic.decimals()));
 
     spoufContractMatic.on("UpdateGlobalBalance", async(globalBalance) => {
       this.globalBalance = this.globalBalance + (parseInt(ethers.utils.formatUnits(globalBalance, await USDCMatic.decimals())) - globalBalanceMatic);
@@ -70,7 +70,7 @@ export default {
     });
     const spoufContractEthereum = new ethers.Contract(contractAddresses.ethereum, contractABI, providerEthereum);
     const USDCEthereum = new ethers.Contract(USDCAddresses.ethereum, ERC20ABI, providerEthereum);
-    const globalBalanceEthereum = parseInt(ethers.utils.formatUnits(parseInt(await spoufContractEthereum.showGlobalBalance()).toString(), await USDCEthereum.decimals()));
+    const globalBalanceEthereum = parseInt(ethers.utils.formatUnits(parseInt(await spoufContractEthereum.globalBalance()).toString(), await USDCEthereum.decimals()));
 
     spoufContractEthereum.on("UpdateGlobalBalance", async(globalBalance) => {
       this.globalBalance = this.globalBalance + (parseInt(ethers.utils.formatUnits(globalBalance, await USDCEthereum.decimals())) - globalBalanceEthereum);
