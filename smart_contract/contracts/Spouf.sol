@@ -164,7 +164,7 @@ contract Spouf is KeeperCompatibleInterface {
         for (uint i = 0; i < m_usersCommitted.length; i++) {
             // we loop over every goals of every users
             for (uint j = 0; j < individualGoals[m_usersCommitted[i]].length; j++) {
-                if (individualGoals[m_usersCommitted[i]][j].deadline < block.timestamp) {
+                if (individualGoals[m_usersCommitted[i]][j].deadline < block.timestamp && individualGoals[m_usersCommitted[i]][j].status == GoalStatus.Created) {
                     upkeepNeeded = true;
                     performData = abi.encode(GoalOOD(m_usersCommitted[i], j));
                     // not necessary but gas efficient because you stop computation as soon as a first condition met
@@ -187,7 +187,7 @@ contract Spouf is KeeperCompatibleInterface {
         for (uint i = 0; i < m_usersCommitted.length; i++) {
             // we loop over every goals of every users
             for (uint j = 0; j < individualGoals[m_usersCommitted[i]].length; j++) {
-                if (individualGoals[m_usersCommitted[i]][j].deadline < block.timestamp) {
+                if (individualGoals[m_usersCommitted[i]][j].deadline < block.timestamp && individualGoals[m_usersCommitted[i]][j].status == GoalStatus.Created) {
                     upkeepValidated = true;
                 }
             }
