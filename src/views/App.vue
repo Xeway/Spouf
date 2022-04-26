@@ -42,7 +42,8 @@
             Name: {{ goal.goal }}
             Deadline: {{ new Date(goal.deadline * 1000).toString().slice(0, 21) }}
             Pledge: {{ parseAmount(goal.amount.toString()) }}
-            <button @click="deleteGoal(index)">Delete</button>
+            <input type="checkbox" @click="deleteGoal(index, true, $event)">
+            <button @click="deleteGoal(index, false, null)">Delete</button>
           </li>
         </ul>
       </div>
@@ -355,11 +356,17 @@ export default {
         )
       );
     },
-    deleteGoal: async function(index) {
+    deleteGoal: async function(index, completed, event) {
       if (index < this.goals.length) {
         await this.getContract(ethereum);
 
-        await contract.deleteGoal(index, false);
+        if (completed) {
+          if (event.target.checked) {
+            await contract.deleteGoal(index, completed);
+          }
+        } else {
+          await contract.deleteGoal(index, completed);
+        }
       } else {
         console.log("Failed (index out of bound).");
       }
