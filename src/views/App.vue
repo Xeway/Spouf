@@ -34,11 +34,24 @@
       </div>
       <div v-if="isShowStats && !isFormGoal">
         <button @click="isShowStats = false">Leave</button>
+        <div id="charts">
+          <ul>
+            <li v-for="goalHistory in goalsHistory" :key="goalHistory">
+              <span v-if="goalHistory.status !== 0">
+                Name: {{ goalHistory.goal }}
+                Deadline: {{ new Date(goalHistory.deadline * 1000).toString().slice(0, 21) }}
+                Pledge: {{ parseAmount(goalHistory.amount.toString()) }}
+                {{ goalHistory.status === 1 ? "Completed" : (goalHistory.status === 2 ? "Expired" : (goalHistory.status === 3 ? "Cancelled" : "")) }}
+              </span>
+            </li>
+          </ul>
+          <!-- <svg id="upcoming-goals"></svg> -->
+        </div>
         <a :href="bcExplorers.bcExpLink" id="etherscan-link">See it on {{ bcExplorers.bcExpName }}</a>
       </div>
       <div v-if="!isFormGoal && !isShowStats" class="goalsList">
-        <ul class="goals" v-for="(goal, index) in goals" :key="goal">
-          <li>
+        <ul class="goals">
+          <li v-for="(goal, index) in goals" :key="goal">
             Name: {{ goal.goal }}
             Deadline: {{ new Date(goal.deadline * 1000).toString().slice(0, 21) }}
             Pledge: {{ parseAmount(goal.amount.toString()) }}
@@ -133,6 +146,7 @@ export default {
         deadline: "",
         amount: 0
       },
+      goalsHistory: null,
       bcExplorers: {
         bcExpName: "",
         bcExpLink: ""
@@ -374,6 +388,39 @@ export default {
     showStats: async function() {
       await this.getContract(ethereum);
 
+      let goals = await contract.getGoal();
+
+      goals = [...goals]
+        // .filter(goal => goal.status === 0 || goal.status === 1)
+        .sort((a, b) => { return parseInt(a.deadline._hex, 16) - parseInt(b.deadline._hex, 16) });
+
+      this.goalsHistory = goals;
+
+      // this code bellow is a test with D3.js, maybe in the future it will be continued
+      /* const farthestDeadline = parseInt(goals[goals.length - 1].deadline._hex, 16);
+
+      const rangeInDays = (farthestDeadline - (new Date().getTime() / 1000)) / 60 / 60 / 24;
+
+      // eslint-disable-next-line no-undef
+      const svg = d3.select("#upcoming-goals")
+        .attr("width", 100 * rangeInDays + 20)
+        .attr("height", 50)
+
+      svg.append("rect")
+        .attr("width", 100 * rangeInDays + 20)
+        .attr("height", 5)
+
+      svg.selectAll()
+        .data(goals)
+        .enter()
+        .append("rect")
+        .attr("height", 10)
+        .attr("width", 10)
+        .attr("transform", (goal, i) => {
+          const restingDay = [(parseInt(goal.deadline._hex, 16) - (new Date().getTime() / 1000)) / 60 / 60 / 24 * 100, 0];
+          return `translate(${restingDay})`;
+        }) */
+
       let name;
       let link;
       if (this.network === "Ethereum") {
@@ -408,6 +455,14 @@ export default {
     document.body.className = "yellow-bg";
   },
   mounted() {
+    /* const plugin = document.createElement("script");
+    plugin.setAttribute(
+      "src",
+      "https://d3js.org/d3.v7.min.js"
+    );
+    plugin.async = true;
+    document.head.appendChild(plugin);
+    */
     if (web3Modal.cachedProvider) {
       this.connectWallet();
     }

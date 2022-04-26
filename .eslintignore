@@ -1,1 +1,2 @@
-/smart_contract/*
+./smart_contract/*
+./src/d3.min.js
