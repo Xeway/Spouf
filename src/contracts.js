@@ -1,4 +1,5 @@
 import { ethers } from "ethers";
+import moment from "moment";
 import abi from "../smart_contract/artifacts/contracts/Spouf.sol/Spouf.json";
 import ERC20ABI from "../smart_contract/ERC20-ABIs.json";
 
@@ -44,6 +45,7 @@ const alchemyId = "lEBhQbN6U0UwGrqvbqfXYfTVZrzatHmb";
 
 export {
     ethers,
+    moment,
 
     Web3Modal,
     WalletConnectProvider,

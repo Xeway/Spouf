@@ -54,6 +54,7 @@
           <li v-for="(goal, index) in goals" :key="goal">
             Name: {{ goal.goal }}
             Deadline: {{ new Date(goal.deadline * 1000).toString().slice(0, 21) }}
+            Time left: {{ goal.timeLeft }}
             Pledge: {{ parseAmount(goal.amount.toString()) }}
             <input type="checkbox" @click="deleteGoal(index, true, $event)">
             <button @click="deleteGoal(index, false, null)">Delete</button>
@@ -75,6 +76,7 @@
 
 import {
   ethers,
+  moment,
 
   Web3Modal,
   WalletConnectProvider,
@@ -347,7 +349,38 @@ export default {
     showGoals: async function() {
       await this.getContract(ethereum);
       const goals = await contract.getGoal();
-      this.goals = goals;
+      let arr = [];
+      goals.forEach(goal => {
+        let g, deadline, amount, status;
+        for (const key of goal.keys()) {
+          switch (key) {
+            case 0:
+              g = goal[key];
+              break;
+            case 1:
+              deadline = goal[key];
+              break;
+            case 2:
+              amount = goal[key];
+              break;
+            case 3:
+              status = goal[key];
+              break;
+          }
+        }
+
+        arr.push({
+          goal: g,
+          deadline: deadline,
+          amount: amount,
+          status: status,
+          timeLeft: null
+        });
+      });
+
+      arr = [...this.computeTimeLeft(arr)];
+
+      this.goals = arr;
 
       contract.on("UpdateGoals", (updatedGoals) => {
         this.goals = updatedGoals;
@@ -449,6 +482,25 @@ export default {
       } else {
         return ethers.utils.formatUnits(amount, 6);
       }
+    },
+    computeTimeLeft: function(goals) {
+      window.setInterval(() => {
+        goals.forEach(goal => {
+          const now = moment();
+          const timeLeft = moment.duration(moment(new Date(goal.deadline * 1000)).diff(now));
+
+          goal.timeLeft = `
+          ${timeLeft.years() > 0 ? timeLeft.years() + " years" : ""}
+          ${timeLeft.months() > 0 ? timeLeft.months() + " months" : ""}
+          ${timeLeft.days() > 0 ? timeLeft.days() + " days" : ""}
+          ${timeLeft.hours() > 0 ? timeLeft.hours() + " hours" : ""}
+          ${timeLeft.minutes() > 0 ? timeLeft.minutes() + " minutes" : ""}
+          ${timeLeft.seconds() > 0 ? timeLeft.seconds() + " seconds" : ""}
+          `;
+        });
+
+        return goals;
+      }, 1000);
     }
   },
   beforeCreate() {
