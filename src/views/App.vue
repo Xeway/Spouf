@@ -54,7 +54,7 @@
           <li v-for="(goal, index) in goals" :key="goal">
             Name: {{ goal.goal }}
             Deadline: {{ new Date(goal.deadline * 1000).toString().slice(0, 21) }}
-            Time left: {{ goal.timeLeft }}
+            Time left: {{ computeTimeLeft(goal.deadline * 1000, index) }}{{ goal.timeLeft }}
             Pledge: {{ parseAmount(goal.amount.toString()) }}
             <input type="checkbox" @click="deleteGoal(index, true, $event)">
             <button @click="deleteGoal(index, false, null)">Delete</button>
@@ -349,7 +349,7 @@ export default {
     showGoals: async function() {
       await this.getContract(ethereum);
       const goals = await contract.getGoal();
-      let arr = [];
+      const arr = [];
       goals.forEach(goal => {
         let g, deadline, amount, status;
         for (const key of goal.keys()) {
@@ -377,8 +377,6 @@ export default {
           timeLeft: null
         });
       });
-
-      arr = [...this.computeTimeLeft(arr)];
 
       this.goals = arr;
 
@@ -483,23 +481,19 @@ export default {
         return ethers.utils.formatUnits(amount, 6);
       }
     },
-    computeTimeLeft: function(goals) {
+    computeTimeLeft: function(deadline, index) {
       window.setInterval(() => {
-        goals.forEach(goal => {
-          const now = moment();
-          const timeLeft = moment.duration(moment(new Date(goal.deadline * 1000)).diff(now));
+        const now = moment();
+        const timeLeft = moment.duration(moment(new Date(deadline)).diff(now));
 
-          goal.timeLeft = `
-          ${timeLeft.years() > 0 ? timeLeft.years() + " years" : ""}
-          ${timeLeft.months() > 0 ? timeLeft.months() + " months" : ""}
-          ${timeLeft.days() > 0 ? timeLeft.days() + " days" : ""}
-          ${timeLeft.hours() > 0 ? timeLeft.hours() + " hours" : ""}
-          ${timeLeft.minutes() > 0 ? timeLeft.minutes() + " minutes" : ""}
-          ${timeLeft.seconds() > 0 ? timeLeft.seconds() + " seconds" : ""}
-          `;
-        });
-
-        return goals;
+        this.goals[index].timeLeft = `
+        ${timeLeft.years() > 0 ? timeLeft.years() + " years" : ""}
+        ${timeLeft.months() > 0 ? timeLeft.months() + " months" : ""}
+        ${timeLeft.days() > 0 ? timeLeft.days() + " days" : ""}
+        ${timeLeft.hours() > 0 ? timeLeft.hours() + " hours" : ""}
+        ${timeLeft.minutes() > 0 ? timeLeft.minutes() + " minutes" : ""}
+        ${timeLeft.seconds() > 0 ? timeLeft.seconds() + " seconds" : ""}
+        `;
       }, 1000);
     }
   },
