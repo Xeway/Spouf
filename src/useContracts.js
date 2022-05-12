@@ -59,6 +59,8 @@ export {
     WalletLink,
 
     useContracts,
+    contractAddresses,
+    USDCAddresses,
 
     contractABI,
     ERC20ABI,
