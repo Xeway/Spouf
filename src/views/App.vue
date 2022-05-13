@@ -171,7 +171,7 @@ export default {
 
         await this.subscribeProvider();
 
-        await this.showGoals();
+        await this.showGoals(false, null);
 
         // if you want to have access to const instance, you can do provider.provider
       }
@@ -212,7 +212,7 @@ export default {
           return;
         }
         this.account = accounts[0];
-        this.showGoals();
+        this.showGoals(false, null);
         this.showStats();
       });
 
@@ -221,7 +221,7 @@ export default {
       });
 
       ethereum.on("connect", (info) => {
-        this.showGoals();
+        this.showGoals(false, null);
         this.showStats();
       });
 
@@ -324,12 +324,17 @@ export default {
       }
 
       await this.getContract(ethereum);
-      await this.showGoals();
+      await this.showGoals(false, null);
       await this.showStats();
     },
-    showGoals: async function() {
+    showGoals: async function(updateNeeded, newGoals) {
       await this.getContract(ethereum);
-      const goals = await contract.getGoal();
+      let goals;
+      if (updateNeeded) {
+        goals = newGoals;
+      } else {
+        goals = await contract.getGoal();
+      }
       const arr = [];
       goals.forEach(goal => {
         let g, deadline, amount, status;
@@ -362,7 +367,7 @@ export default {
       this.goals = arr;
 
       contract.on("UpdateGoals", (updatedGoals) => {
-        this.goals = updatedGoals;
+        this.showGoals(true, updatedGoals);
       });
     },
     defineGoal: async function(event) {
