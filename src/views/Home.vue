@@ -18,7 +18,7 @@ import {
 
   infuraId,
   alchemyId
-} from "@/contracts.js";
+} from "@/useContracts.js";
 
 export default {
   data() {

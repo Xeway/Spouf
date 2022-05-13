@@ -74,6 +74,8 @@
 
 <script>
 
+import { storeToRefs } from "pinia";
+
 import {
   ethers,
   moment,
@@ -83,19 +85,19 @@ import {
   Fortmatic,
   WalletLink,
 
-  contractAddress,
+  useContracts,
   contractAddresses,
-  USDCAddress,
   USDCAddresses,
-  LINKAddress,
-  LINKAddresses,
-  setContractAddress,
 
   contractABI,
   ERC20ABI,
 
   infuraId
-} from "@/contracts.js";
+} from "@/useContracts.js";
+
+const contracts = useContracts();
+const { contractAddress, USDCAddress, LINKAddress } = storeToRefs(contracts);
+const { setContractAddress } = contracts;
 
 const providerOptions = {
   walletconnect: {
@@ -191,9 +193,9 @@ export default {
 
       const signer = provider.getSigner();
 
-      const spoufContract = new ethers.Contract(contractAddress, contractABI, signer);
-      USDC = new ethers.Contract(USDCAddress, ERC20ABI, signer);
-      LINK = new ethers.Contract(LINKAddress, ERC20ABI, signer);
+      const spoufContract = new ethers.Contract(contractAddress.value, contractABI, signer);
+      USDC = new ethers.Contract(USDCAddress.value, ERC20ABI, signer);
+      LINK = new ethers.Contract(LINKAddress.value, ERC20ABI, signer);
 
       contract = spoufContract;
 
@@ -274,28 +276,8 @@ export default {
             this.network = event.target.value;
           }
 
-          switch (event.target.value) {
-            case "Ethereum":
-              this.network = "Ethereum";
-              setContractAddress(contractAddresses.ethereum, USDCAddresses.ethereum, LINKAddresses.ethereum);
-              break;
-            case "Kovan":
-              this.network = "Kovan";
-              setContractAddress(contractAddresses.kovan, USDCAddresses.kovan, LINKAddresses.kovan);
-              break;
-            case "Matic":
-              this.network = "Matic";
-              setContractAddress(contractAddresses.matic, USDCAddresses.matic, LINKAddresses.matic);
-              break;
-            case "Mumbai":
-              this.network = "Mumbai";
-              setContractAddress(contractAddresses.mumbai, USDCAddresses.mumbai, LINKAddresses.mumbai);
-              break;
-            default:
-              this.network = false;
-              setContractAddress("0x", "0x", "0x");
-              return;
-          }
+          this.network = event.target.value;
+          setContractAddress(event.target.value.toLowerCase());
         } catch (switchError) {
           if (switchError.code === 4902) {
             try {
@@ -321,23 +303,22 @@ export default {
         switch (event) {
           case "0x1": case 1:
             this.network = "Ethereum";
-            setContractAddress(contractAddresses.ethereum, USDCAddresses.ethereum, LINKAddresses.ethereum);
+            setContractAddress("ethereum");
             break;
           case "0x42": case 42: case "0x2a":
             this.network = "Kovan";
-            setContractAddress(contractAddresses.kovan, USDCAddresses.kovan, LINKAddresses.kovan);
+            setContractAddress("kovan");
             break;
           case "0x89": case 89: case 137:
             this.network = "Matic";
-            setContractAddress(contractAddresses.matic, USDCAddresses.matic, LINKAddresses.matic);
+            setContractAddress("matic");
             break;
           case "0x13881": case 80001:
             this.network = "Mumbai";
-            setContractAddress(contractAddresses.mumbai, USDCAddresses.mumbai, LINKAddresses.mumbai);
+            setContractAddress("mumbai");
             break;
           default:
             this.network = false;
-            setContractAddress("0x", "0x", "0x");
             return;
         }
       }
@@ -390,8 +371,8 @@ export default {
       // the decimals are different according to the different ERC20 of different networks
       const USDCAmount = ethers.utils.parseUnits(this.formGoal.amount.toString(), await USDC.decimals());
 
-      USDC.approve(contractAddress, USDCAmount).then(
-        LINK.approve(contractAddress, ethers.utils.parseEther("0.2")).then(
+      USDC.approve(contractAddress.value, USDCAmount).then(
+        LINK.approve(contractAddress.value, ethers.utils.parseEther("0.2")).then(
           await contract.setGoal(
             this.formGoal.name,
             Math.floor(new Date(this.formGoal.deadline).getTime() / 1000),
@@ -475,7 +456,7 @@ export default {
       this.getContract(ethereum);
 
       // we cannot use asynchronous code so we're obligated to use that crap technique
-      if (USDCAddress === USDCAddresses.mumbai) {
+      if (USDCAddress.value === USDCAddresses.mumbai) {
         return ethers.utils.formatUnits(amount, 18);
       } else {
         return ethers.utils.formatUnits(amount, 6);

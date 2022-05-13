@@ -41,10 +41,10 @@ const useContracts = defineStore("contracts", {
         LINKAddress: "0xa36085F69e2889c224210F603D836748e7dC0088"
     }),
     actions: {
-        setContractAddress(spoufNetworkName, USDCNetworkName, LINKNetworkName) {
-            this.contractAddress = contractAddresses[spoufNetworkName];
-            this.USDCAddress = USDCAddresses[USDCNetworkName];
-            this.LINKAddress = LINKAddresses[LINKNetworkName];
+        setContractAddress(networkName) {
+            this.contractAddress = contractAddresses[networkName];
+            this.USDCAddress = USDCAddresses[networkName];
+            this.LINKAddress = LINKAddresses[networkName];
         }
     }
 });
